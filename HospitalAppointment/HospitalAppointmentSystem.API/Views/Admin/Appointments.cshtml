@@ -1,0 +1,42 @@
+@model List<AppointmentDetailDTO>
+@{
+    ViewData["Title"] = "Quản lý lịch hẹn";
+}
+
+<section class="schedule-list full">
+    <h3>Quản lý lịch hẹn khám bệnh</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Mã</th>
+                <th>Bệnh nhân</th>
+                <th>Bác sĩ</th>
+                <th>Chuyên khoa</th>
+                <th>Ngày</th>
+                <th>Giờ</th>
+                <th>Lý do</th>
+                <th>Trạng thái</th>
+                <th>Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var a in Model)
+            {
+                <tr>
+                    <td>@a.AppointmentId</td>
+                    <td>@a.PatientName</td>
+                    <td>@a.DoctorName</td>
+                    <td>@a.SpecialtyName</td>
+                    <td>@a.WorkDate.ToString("dd/MM/yyyy")</td>
+                    <td>@a.StartTime.ToString(@"hh\:mm") - @a.EndTime.ToString(@"hh\:mm")</td>
+                    <td>@a.Reason</td>
+                    <td>@a.Status</td>
+                    <td class="actions">
+                        <form asp-action="Confirm" method="post"><input type="hidden" name="id" value="@a.AppointmentId" /><button>Xác nhận</button></form>
+                        <form asp-action="Cancel" method="post"><input type="hidden" name="id" value="@a.AppointmentId" /><button>Hủy</button></form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</section>

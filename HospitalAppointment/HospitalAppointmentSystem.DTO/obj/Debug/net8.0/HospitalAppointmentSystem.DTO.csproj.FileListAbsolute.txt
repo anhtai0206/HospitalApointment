@@ -1,0 +1,11 @@
+C:\Users\Administrator\Downloads\HospitalAppointmentSystem_MultiProject\HospitalAppointmentSystem.DTO\bin\Debug\net8.0\HospitalAppointmentSystem.DTO.deps.json
+C:\Users\Administrator\Downloads\HospitalAppointmentSystem_MultiProject\HospitalAppointmentSystem.DTO\bin\Debug\net8.0\HospitalAppointmentSystem.DTO.dll
+C:\Users\Administrator\Downloads\HospitalAppointmentSystem_MultiProject\HospitalAppointmentSystem.DTO\bin\Debug\net8.0\HospitalAppointmentSystem.DTO.pdb
+C:\Users\Administrator\Downloads\HospitalAppointmentSystem_MultiProject\HospitalAppointmentSystem.DTO\obj\Debug\net8.0\HospitalAppointmentSystem.DTO.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Administrator\Downloads\HospitalAppointmentSystem_MultiProject\HospitalAppointmentSystem.DTO\obj\Debug\net8.0\HospitalAppointmentSystem.DTO.AssemblyInfoInputs.cache
+C:\Users\Administrator\Downloads\HospitalAppointmentSystem_MultiProject\HospitalAppointmentSystem.DTO\obj\Debug\net8.0\HospitalAppointmentSystem.DTO.AssemblyInfo.cs
+C:\Users\Administrator\Downloads\HospitalAppointmentSystem_MultiProject\HospitalAppointmentSystem.DTO\obj\Debug\net8.0\HospitalAppointmentSystem.DTO.csproj.CoreCompileInputs.cache
+C:\Users\Administrator\Downloads\HospitalAppointmentSystem_MultiProject\HospitalAppointmentSystem.DTO\obj\Debug\net8.0\HospitalAppointmentSystem.DTO.dll
+C:\Users\Administrator\Downloads\HospitalAppointmentSystem_MultiProject\HospitalAppointmentSystem.DTO\obj\Debug\net8.0\refint\HospitalAppointmentSystem.DTO.dll
+C:\Users\Administrator\Downloads\HospitalAppointmentSystem_MultiProject\HospitalAppointmentSystem.DTO\obj\Debug\net8.0\HospitalAppointmentSystem.DTO.pdb
+C:\Users\Administrator\Downloads\HospitalAppointmentSystem_MultiProject\HospitalAppointmentSystem.DTO\obj\Debug\net8.0\ref\HospitalAppointmentSystem.DTO.dll

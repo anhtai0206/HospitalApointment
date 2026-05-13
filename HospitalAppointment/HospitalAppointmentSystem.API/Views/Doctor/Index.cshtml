@@ -1,0 +1,47 @@
+@model List<DoctorDTO>
+@{
+    ViewData["Title"] = "Danh sách bác sĩ";
+}
+
+<div class="filter-bar">
+    <form method="get" class="filter-form">
+        <label>Chọn chuyên khoa:</label>
+        <select name="specialtyId" class="form-control">
+            <option value="">-- Tất cả --</option>
+            @foreach (var s in ViewBag.Specialties)
+            {
+                <option value="@s.SpecialtyId">@s.SpecialtyName</option>
+            }
+        </select>
+        <button class="btn-refresh" type="submit">Lọc</button>
+    </form>
+</div>
+
+<section class="schedule-list full">
+    <h3>Danh sách bác sĩ</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Mã BS</th>
+                <th>Họ tên</th>
+                <th>Chuyên khoa</th>
+                <th>Trình độ</th>
+                <th>Kinh nghiệm</th>
+                <th>Số điện thoại</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var d in Model)
+            {
+                <tr>
+                    <td>@d.DoctorId</td>
+                    <td>@d.FullName</td>
+                    <td>@d.SpecialtyName</td>
+                    <td>@d.Qualification</td>
+                    <td>@d.ExperienceYears năm</td>
+                    <td>@d.Phone</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</section>
