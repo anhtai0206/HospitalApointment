@@ -5,6 +5,7 @@ public class ScheduleDTO
     public int ScheduleId { get; set; }
     public int DoctorId { get; set; }
     public string DoctorName { get; set; } = string.Empty;
+    public int SpecialtyId { get; set; }
     public string SpecialtyName { get; set; } = string.Empty;
     public DateTime WorkDate { get; set; }
     public TimeSpan StartTime { get; set; }

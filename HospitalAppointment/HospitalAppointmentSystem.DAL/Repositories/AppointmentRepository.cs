@@ -26,27 +26,40 @@ public class AppointmentRepository : IAppointmentRepository
 
     public async Task<List<AppointmentDetailDTO>> GetByPatientAsync(int patientId)
     {
-        return await GetAppointmentQuery(patientId).OrderByDescending(a => a.CreatedAt).ToListAsync();
+        return await GetAppointmentQuery(patientId: patientId).OrderByDescending(a => a.CreatedAt).ToListAsync();
     }
 
-    private IQueryable<AppointmentDetailDTO> GetAppointmentQuery(int? patientId = null)
+    public async Task<List<AppointmentDetailDTO>> GetByDoctorAsync(int doctorId)
+    {
+        return await GetAppointmentQuery(doctorId: doctorId).OrderByDescending(a => a.CreatedAt).ToListAsync();
+    }
+
+    private IQueryable<AppointmentDetailDTO> GetAppointmentQuery(int? patientId = null, int? doctorId = null)
     {
         var query = _db.Appointments
             .Include(a => a.Patient)!.ThenInclude(p => p.User)
             .Include(a => a.Doctor)!.ThenInclude(d => d.User)
             .Include(a => a.Doctor)!.ThenInclude(d => d.Specialty)
             .Include(a => a.DoctorSchedule)
+            .Include(a => a.MedicalService)
+            .Include(a => a.ClinicRoom)
             .AsQueryable();
 
         if (patientId.HasValue)
             query = query.Where(a => a.PatientId == patientId.Value);
+        if (doctorId.HasValue)
+            query = query.Where(a => a.DoctorId == doctorId.Value);
 
         return query.Select(a => new AppointmentDetailDTO
         {
             AppointmentId = a.AppointmentId,
+            PatientId = a.PatientId,
+            DoctorId = a.DoctorId,
             PatientName = a.Patient!.User!.FullName,
             DoctorName = a.Doctor!.User!.FullName,
             SpecialtyName = a.Doctor.Specialty!.SpecialtyName,
+            MedicalServiceName = a.MedicalService != null ? a.MedicalService.ServiceName : string.Empty,
+            ClinicRoomName = a.ClinicRoom != null ? a.ClinicRoom.RoomName : string.Empty,
             WorkDate = a.DoctorSchedule!.WorkDate,
             StartTime = a.DoctorSchedule.StartTime,
             EndTime = a.DoctorSchedule.EndTime,
@@ -70,6 +83,8 @@ public class AppointmentRepository : IAppointmentRepository
             cmd.Parameters.AddWithValue("@PatientId", dto.PatientId);
             cmd.Parameters.AddWithValue("@DoctorId", dto.DoctorId);
             cmd.Parameters.AddWithValue("@ScheduleId", dto.ScheduleId);
+            cmd.Parameters.AddWithValue("@MedicalServiceId", dto.MedicalServiceId);
+            cmd.Parameters.AddWithValue("@ClinicRoomId", dto.ClinicRoomId);
             cmd.Parameters.AddWithValue("@Reason", dto.Reason);
 
             await conn.OpenAsync();
@@ -126,6 +141,25 @@ public class AppointmentRepository : IAppointmentRepository
 
         await _db.SaveChangesAsync();
         return ApiResponse.Ok("Xác nhận lịch khám thành công");
+    }
+
+
+    public async Task<ApiResponse> CompleteAsync(int appointmentId)
+    {
+        var appointment = await _db.Appointments.FirstOrDefaultAsync(a => a.AppointmentId == appointmentId);
+        if (appointment == null) return ApiResponse.Fail("Không tìm thấy lịch hẹn");
+        if (appointment.Status == "Cancelled") return ApiResponse.Fail("Lịch hẹn đã hủy nên không thể cập nhật đã khám");
+
+        appointment.Status = "Completed";
+        _db.AppointmentLogs.Add(new AppointmentLog
+        {
+            AppointmentId = appointmentId,
+            ActionName = "Completed",
+            ActionDate = DateTime.Now
+        });
+
+        await _db.SaveChangesAsync();
+        return ApiResponse.Ok("Cập nhật trạng thái đã khám thành công");
     }
 
     // ADO.NET phi kết nối: DataSet + DataAdapter

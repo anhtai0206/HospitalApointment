@@ -1,3 +1,4 @@
+@using System.Security.Claims
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -18,10 +19,40 @@
             </div>
             <a href="/">Trang chủ</a>
             <a href="/Doctor">Bác sĩ</a>
-            <a href="/Appointment/Create">Đăng ký khám</a>
-            <a href="/Appointment/MyAppointments">Lịch của tôi</a>
-            <a href="/Admin/Appointments">Quản lý lịch hẹn</a>
-            <a href="/swagger">Web API</a>
+
+            @if (User.Identity?.IsAuthenticated == true && User.IsInRole("Patient"))
+            {
+                <a href="/Appointment/Create">Đăng ký khám</a>
+                <a href="/Appointment/MyAppointments">Lịch của tôi</a>
+                <a href="/Account/PatientInfo">Thông tin bệnh nhân</a>
+            }
+
+            @if (User.Identity?.IsAuthenticated == true && User.IsInRole("Doctor"))
+            {
+                <a href="/Doctor/MySchedule">Lịch khám của bác sĩ</a>
+            }
+
+            @if (User.Identity?.IsAuthenticated == true && User.IsInRole("Admin"))
+            {
+                <a href="/Admin/Appointments">Quản lý lịch hẹn</a>
+                <a href="/swagger">Web API</a>
+            }
+
+            @if (User.Identity?.IsAuthenticated == true)
+            {
+                <a href="/Account/ChangePassword">Đổi mật khẩu</a>
+                <div class="user-card">
+                    <strong>@User.Identity!.Name</strong>
+                    <span>@User.FindFirstValue(ClaimTypes.Role)</span>
+                </div>
+                <form asp-controller="Account" asp-action="Logout" method="post">
+                    <button class="sidebar-action logout-button" type="submit">Đăng xuất</button>
+                </form>
+            }
+            else
+            {
+                <a href="/Account/Login">Đăng nhập</a>
+            }
         </aside>
         <main class="content">
             @if (TempData["Success"] != null)

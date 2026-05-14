@@ -1,8 +1,10 @@
 using HospitalAppointmentSystem.BLL.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HospitalAppointmentSystem.API.Controllers;
 
+[Authorize(Roles = "Admin")]
 public class AdminController : Controller
 {
     private readonly IAppointmentService _appointmentService;
@@ -30,6 +32,14 @@ public class AdminController : Controller
     public async Task<IActionResult> Cancel(int id)
     {
         var result = await _appointmentService.CancelAsync(id);
+        TempData[result.Success ? "Success" : "Error"] = result.Message;
+        return RedirectToAction(nameof(Appointments));
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Complete(int id)
+    {
+        var result = await _appointmentService.CompleteAsync(id);
         TempData[result.Success ? "Success" : "Error"] = result.Message;
         return RedirectToAction(nameof(Appointments));
     }

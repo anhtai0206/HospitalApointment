@@ -1,49 +1,64 @@
 @model AppointmentDTO
 @{
     ViewData["Title"] = "Đăng ký lịch khám";
+    int? selectedSpecialtyId = ViewBag.SelectedSpecialtyId as int?;
+    int? selectedDoctorId = ViewBag.SelectedDoctorId as int?;
 }
 
 <div class="page-header">
     <div>
         <p class="eyebrow">Đăng ký trực tuyến</p>
         <h1>Đăng ký lịch khám bệnh</h1>
-        <p class="page-desc">Chọn bác sĩ, khung giờ còn trống và nhập thông tin bệnh nhân để hoàn tất đăng ký.</p>
+        
     </div>
     <a href="/Appointment/MyAppointments" class="ghost-link">Xem lịch của tôi</a>
 </div>
 
-<div class="filter-card">
+<form id="filterForm" method="get" asp-action="Create" class="filter-card">
     <div class="filter-group">
         <label>Chuyên khoa</label>
-        <select id="specialtyId" class="form-control">
+        <select id="specialtyId" name="specialtyId" class="form-control">
             <option value="">-- Tất cả chuyên khoa --</option>
             @foreach (var item in ViewBag.Specialties)
             {
-                <option value="@item.SpecialtyId">@item.SpecialtyName</option>
+                if (selectedSpecialtyId == item.SpecialtyId)
+                {
+                    <option value="@item.SpecialtyId" selected>@item.SpecialtyName</option>
+                }
+                else
+                {
+                    <option value="@item.SpecialtyId">@item.SpecialtyName</option>
+                }
             }
         </select>
     </div>
 
     <div class="filter-group">
         <label>Bác sĩ</label>
-        <select id="doctorFilter" class="form-control" onchange="location.href='/Appointment/Create?doctorId=' + this.value">
+        <select id="doctorFilter" name="doctorId" class="form-control">
             <option value="">-- Tất cả bác sĩ --</option>
             @foreach (var item in ViewBag.Doctors)
             {
-                <option value="@item.DoctorId">@item.FullName</option>
+                if (selectedDoctorId == item.DoctorId)
+                {
+                    <option value="@item.DoctorId" selected>@item.FullName</option>
+                }
+                else
+                {
+                    <option value="@item.DoctorId">@item.FullName</option>
+                }
             }
         </select>
     </div>
 
     <button type="button" class="btn-refresh" onclick="location.href='/Appointment/Create'">Làm mới</button>
-</div>
+</form>
 
 <div class="booking-layout">
     <section class="panel schedule-panel">
         <div class="panel-title-row">
             <div>
                 <h3>Danh sách lịch khám còn trống</h3>
-                <p>Nhấn vào nút chọn hoặc cả dòng để chọn lịch khám. Dòng đã chọn sẽ hiện dấu tích.</p>
             </div>
             <span class="count-badge">@ViewBag.Schedules.Count lịch</span>
         </div>
@@ -64,13 +79,16 @@
                 <tbody>
                     @foreach (var s in ViewBag.Schedules)
                     {
+                        var dateText = s.WorkDate.ToString("dd/MM/yyyy");
+                        var timeText = s.StartTime.ToString(@"hh\:mm") + " - " + s.EndTime.ToString(@"hh\:mm");
                         <tr class="schedule-row"
                             data-schedule-id="@s.ScheduleId"
                             data-doctor-id="@s.DoctorId"
+                            data-specialty-id="@s.SpecialtyId"
                             data-doctor-name="@s.DoctorName"
                             data-specialty-name="@s.SpecialtyName"
-                            data-work-date="@s.WorkDate.ToString("dd/MM/yyyy")"
-                            data-time="@s.StartTime.ToString(@"hh\:mm") - @s.EndTime.ToString(@"hh\:mm")"
+                            data-work-date="@dateText"
+                            data-time="@timeText"
                             onclick="selectSchedule(this)">
                             <td>
                                 <button type="button" class="select-check" aria-label="Chọn lịch">
@@ -80,8 +98,8 @@
                             <td class="strong">@s.ScheduleId</td>
                             <td>@s.DoctorName</td>
                             <td>@s.SpecialtyName</td>
-                            <td>@s.WorkDate.ToString("dd/MM/yyyy")</td>
-                            <td>@s.StartTime.ToString(@"hh\:mm") - @s.EndTime.ToString(@"hh\:mm")</td>
+                            <td>@dateText</td>
+                            <td>@timeText</td>
                             <td><span class="slot-badge">@s.AvailableSlots slot</span></td>
                         </tr>
                     }
@@ -93,8 +111,7 @@
     <section class="panel patient-form">
         <div class="panel-title-row compact">
             <div>
-                <h3>Thông tin bệnh nhân</h3>
-                <p>Kiểm tra lịch đã chọn trước khi lưu.</p>
+                <h3>Thông tin đăng ký</h3>
             </div>
         </div>
 
@@ -102,32 +119,64 @@
             <div class="selected-icon">✓</div>
             <div>
                 <strong>Chưa chọn lịch khám</strong>
-                <span>Vui lòng chọn một dòng lịch khám bên trái.</span>
             </div>
         </div>
 
         <form asp-action="Create" method="post" onsubmit="return validateBooking()">
             <input type="hidden" id="ScheduleId" name="ScheduleId" />
             <input type="hidden" id="DoctorId" name="DoctorId" />
-            <input type="hidden" name="PatientId" value="1" />
+            <input type="hidden" asp-for="PatientId" />
 
-            <div class="form-row"><label>Họ tên</label><input type="text" name="PatientName" placeholder="Bệnh nhân demo" /></div>
-            <div class="form-row"><label>Số điện thoại</label><input type="text" name="Phone" placeholder="090..." /></div>
-            <div class="form-row"><label>Ngày sinh</label><input type="date" name="DateOfBirth" /></div>
-            <div class="form-row"><label>Giới tính</label><select name="Gender"><option>Nam</option><option>Nữ</option><option>Khác</option></select></div>
-            <div class="form-row"><label>BHYT/CCCD</label><input type="text" name="HealthInsuranceNo" /></div>
-            <div class="form-row"><label>Địa chỉ</label><input type="text" name="Address" /></div>
-            <div class="form-row"><label>Lý do khám</label><textarea name="Reason" placeholder="Nhập triệu chứng hoặc lý do khám..."></textarea></div>
+            <div class="booking-tabs">
+                <div class="tab-block disabled-block" id="serviceBlock">
+                    <div class="tab-title">Dịch vụ</div>
+                    <select id="MedicalServiceId" name="MedicalServiceId" class="form-control wide-select" disabled>
+                        <option value="">-- Chọn dịch vụ --</option>
+                        @foreach (var service in ViewBag.Services)
+                        {
+                            <option value="@service.MedicalServiceId">@service.ServiceName - @service.Description</option>
+                        }
+                    </select>
+                </div>
 
-            <div class="button-group">
-                <button type="submit" class="btn-save">Lưu đăng ký</button>
-                <button type="reset" class="btn-clear" onclick="clearSelectedSchedule()">Làm sạch</button>
+                <div class="tab-block disabled-block" id="roomBlock">
+                    <div class="tab-title">Chọn phòng khám</div>
+                    <select id="ClinicRoomId" name="ClinicRoomId" class="form-control wide-select" disabled>
+                        <option value="">-- Chọn phòng khám --</option>
+                        @foreach (var room in ViewBag.Rooms)
+                        {
+                            <option value="@room.ClinicRoomId" data-specialty-id="@room.SpecialtyId">@room.RoomName</option>
+                        }
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row stacked">
+                <label>Lý do khám</label>
+                <textarea name="Reason" placeholder="Nhập triệu chứng hoặc lý do khám..."></textarea>
+            </div>
+
+            <div class="button-group single">
+                <button type="submit" class="btn-save">Đăng ký</button>
             </div>
         </form>
     </section>
 </div>
 
 <script>
+    const roomSelect = document.getElementById('ClinicRoomId');
+    const serviceSelect = document.getElementById('MedicalServiceId');
+    const allRoomOptions = Array.from(roomSelect.querySelectorAll('option'));
+
+    document.getElementById('specialtyId').addEventListener('change', function () {
+        document.getElementById('doctorFilter').value = '';
+        document.getElementById('filterForm').submit();
+    });
+
+    document.getElementById('doctorFilter').addEventListener('change', function () {
+        document.getElementById('filterForm').submit();
+    });
+
     function selectSchedule(row) {
         document.querySelectorAll('.schedule-row').forEach(function (item) {
             item.classList.remove('selected');
@@ -137,6 +186,7 @@
 
         const scheduleId = row.dataset.scheduleId;
         const doctorId = row.dataset.doctorId;
+        const specialtyId = row.dataset.specialtyId;
         const doctorName = row.dataset.doctorName;
         const specialtyName = row.dataset.specialtyName;
         const workDate = row.dataset.workDate;
@@ -144,6 +194,8 @@
 
         document.getElementById('ScheduleId').value = scheduleId;
         document.getElementById('DoctorId').value = doctorId;
+
+        enableBookingOptions(specialtyId);
 
         const selectedBox = document.getElementById('selectedBox');
         selectedBox.classList.remove('empty');
@@ -156,28 +208,49 @@
             </div>`;
     }
 
-    function clearSelectedSchedule() {
-        document.getElementById('ScheduleId').value = '';
-        document.getElementById('DoctorId').value = '';
-        document.querySelectorAll('.schedule-row').forEach(function (item) {
-            item.classList.remove('selected');
+    function enableBookingOptions(specialtyId) {
+        document.getElementById('serviceBlock').classList.remove('disabled-block');
+        document.getElementById('roomBlock').classList.remove('disabled-block');
+        serviceSelect.disabled = false;
+        roomSelect.disabled = false;
+        serviceSelect.value = '';
+
+        roomSelect.innerHTML = '';
+        const defaultOption = allRoomOptions[0].cloneNode(true);
+        roomSelect.appendChild(defaultOption);
+
+        allRoomOptions.slice(1).forEach(function (option) {
+            if (option.dataset.specialtyId === specialtyId) {
+                roomSelect.appendChild(option.cloneNode(true));
+            }
         });
-        document.getElementById('selectedBox').className = 'selected-box empty';
-        document.getElementById('selectedBox').innerHTML = `
-            <div class="selected-icon">✓</div>
-            <div>
-                <strong>Chưa chọn lịch khám</strong>
-                <span>Vui lòng chọn một dòng lịch khám bên trái.</span>
-            </div>`;
+        roomSelect.value = '';
     }
 
     function validateBooking() {
         if (!document.getElementById('ScheduleId').value) {
-            const selectedBox = document.getElementById('selectedBox');
-            selectedBox.classList.add('shake');
-            setTimeout(function () { selectedBox.classList.remove('shake'); }, 400);
+            showBookingMessage('Vui lòng chọn bác sĩ và lịch khám trước.');
+            return false;
+        }
+        if (!serviceSelect.value) {
+            showBookingMessage('Vui lòng chọn dịch vụ khám.');
+            return false;
+        }
+        if (!roomSelect.value) {
+            showBookingMessage('Vui lòng chọn phòng khám phù hợp với chuyên khoa.');
             return false;
         }
         return true;
+    }
+
+    function showBookingMessage(message) {
+        const selectedBox = document.getElementById('selectedBox');
+        selectedBox.classList.add('empty', 'shake');
+        selectedBox.innerHTML = `
+            <div class="selected-icon">!</div>
+            <div>
+                <strong>${message}</strong>
+            </div>`;
+        setTimeout(function () { selectedBox.classList.remove('shake'); }, 400);
     }
 </script>

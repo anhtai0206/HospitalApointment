@@ -14,6 +14,8 @@ public class HospitalDbContext : DbContext
     public DbSet<DoctorSchedule> DoctorSchedules => Set<DoctorSchedule>();
     public DbSet<Appointment> Appointments => Set<Appointment>();
     public DbSet<AppointmentLog> AppointmentLogs => Set<AppointmentLog>();
+    public DbSet<MedicalService> MedicalServices => Set<MedicalService>();
+    public DbSet<ClinicRoom> ClinicRooms => Set<ClinicRoom>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -26,6 +28,8 @@ public class HospitalDbContext : DbContext
         modelBuilder.Entity<DoctorSchedule>().ToTable("DoctorSchedules");
         modelBuilder.Entity<Appointment>().ToTable("Appointments");
         modelBuilder.Entity<AppointmentLog>().ToTable("AppointmentLogs");
+        modelBuilder.Entity<MedicalService>().ToTable("MedicalServices");
+        modelBuilder.Entity<ClinicRoom>().ToTable("ClinicRooms");
 
         modelBuilder.Entity<Doctor>()
             .HasOne(d => d.User)
@@ -63,5 +67,20 @@ public class HospitalDbContext : DbContext
             .HasOne(a => a.DoctorSchedule)
             .WithMany(s => s.Appointments)
             .HasForeignKey(a => a.ScheduleId);
+
+        modelBuilder.Entity<Appointment>()
+            .HasOne(a => a.MedicalService)
+            .WithMany(s => s.Appointments)
+            .HasForeignKey(a => a.MedicalServiceId);
+
+        modelBuilder.Entity<Appointment>()
+            .HasOne(a => a.ClinicRoom)
+            .WithMany(r => r.Appointments)
+            .HasForeignKey(a => a.ClinicRoomId);
+
+        modelBuilder.Entity<ClinicRoom>()
+            .HasOne(r => r.Specialty)
+            .WithMany()
+            .HasForeignKey(r => r.SpecialtyId);
     }
 }

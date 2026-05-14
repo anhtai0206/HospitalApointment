@@ -1,0 +1,45 @@
+@model List<AppointmentDetailDTO>
+@{
+    ViewData["Title"] = "Lịch khám của bác sĩ";
+}
+
+<section class="schedule-list full">
+    <h3>Lịch khám của bác sĩ</h3>
+    <p class="muted">Bác sĩ chỉ thấy danh sách bệnh nhân đã đặt lịch với mình.</p>
+    <table>
+        <thead>
+            <tr>
+                <th>Mã lịch</th>
+                <th>Bệnh nhân</th>
+                <th>Dịch vụ</th>
+                <th>Phòng khám</th>
+                <th>Ngày khám</th>
+                <th>Giờ khám</th>
+                <th>Lý do khám</th>
+                <th>Trạng thái</th>
+                <th>Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var a in Model)
+            {
+                <tr>
+                    <td>@a.AppointmentId</td>
+                    <td>@a.PatientName</td>
+                    <td>@a.MedicalServiceName</td>
+                    <td>@a.ClinicRoomName</td>
+                    <td>@a.WorkDate.ToString("dd/MM/yyyy")</td>
+                    <td>@a.StartTime.ToString(@"hh\:mm") - @a.EndTime.ToString(@"hh\:mm")</td>
+                    <td>@a.Reason</td>
+                    <td><span class="status-pill @a.Status.ToLower()">@a.Status</span></td>
+                    <td class="actions">
+                        @if (a.Status != "Cancelled" && a.Status != "Completed")
+                        {
+                            <form asp-action="Complete" method="post"><input type="hidden" name="id" value="@a.AppointmentId" /><button>Đã khám</button></form>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</section>

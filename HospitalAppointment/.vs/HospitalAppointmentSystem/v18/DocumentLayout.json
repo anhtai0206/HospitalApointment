@@ -1,12 +1,37 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "C:\\Users\\Administrator\\Downloads\\HospitalAppointmentSystem_MultiProject\\",
-  "Documents": [],
+  "WorkspaceRootPath": "C:\\Users\\Administrator\\Downloads\\HospitalApointment\\HospitalAppointment\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{33333333-3333-3333-3333-333333333333}|HospitalAppointmentSystem.DAL\\HospitalAppointmentSystem.DAL.csproj|c:\\users\\administrator\\downloads\\hospitalapointment\\hospitalappointment\\hospitalappointmentsystem.dal\\repositories\\appointmentrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{33333333-3333-3333-3333-333333333333}|HospitalAppointmentSystem.DAL\\HospitalAppointmentSystem.DAL.csproj|solutionrelative:hospitalappointmentsystem.dal\\repositories\\appointmentrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
       "VerticalTabListWidth": 256,
-      "DocumentGroups": []
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "AppointmentRepository.cs",
+              "DocumentMoniker": "C:\\Users\\Administrator\\Downloads\\HospitalApointment\\HospitalAppointment\\HospitalAppointmentSystem.DAL\\Repositories\\AppointmentRepository.cs",
+              "RelativeDocumentMoniker": "HospitalAppointmentSystem.DAL\\Repositories\\AppointmentRepository.cs",
+              "ToolTip": "C:\\Users\\Administrator\\Downloads\\HospitalApointment\\HospitalAppointment\\HospitalAppointmentSystem.DAL\\Repositories\\AppointmentRepository.cs",
+              "RelativeToolTip": "HospitalAppointmentSystem.DAL\\Repositories\\AppointmentRepository.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-14T08:42:22.292Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
     }
   ]
 }

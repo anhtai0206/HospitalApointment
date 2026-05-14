@@ -4,17 +4,20 @@
 }
 
 <section class="schedule-list full">
-    <h3>Lịch khám của bệnh nhân demo</h3>
+    <h3>Lịch khám của tôi</h3>
     <table>
         <thead>
             <tr>
                 <th>Mã lịch hẹn</th>
                 <th>Bác sĩ</th>
                 <th>Chuyên khoa</th>
+                <th>Dịch vụ</th>
+                <th>Phòng khám</th>
                 <th>Ngày khám</th>
                 <th>Giờ khám</th>
                 <th>Lý do</th>
                 <th>Trạng thái</th>
+                <th>Thao tác</th>
             </tr>
         </thead>
         <tbody>
@@ -24,10 +27,18 @@
                     <td>@a.AppointmentId</td>
                     <td>@a.DoctorName</td>
                     <td>@a.SpecialtyName</td>
+                    <td>@a.MedicalServiceName</td>
+                    <td>@a.ClinicRoomName</td>
                     <td>@a.WorkDate.ToString("dd/MM/yyyy")</td>
                     <td>@a.StartTime.ToString(@"hh\:mm") - @a.EndTime.ToString(@"hh\:mm")</td>
                     <td>@a.Reason</td>
-                    <td>@a.Status</td>
+                    <td><span class="status-pill @a.Status.ToLower()">@a.Status</span></td>
+                    <td class="actions">
+                        @if (a.Status != "Cancelled" && a.Status != "Completed")
+                        {
+                            <form asp-action="CancelMine" method="post"><input type="hidden" name="id" value="@a.AppointmentId" /><button>Hủy lịch</button></form>
+                        }
+                    </td>
                 </tr>
             }
         </tbody>

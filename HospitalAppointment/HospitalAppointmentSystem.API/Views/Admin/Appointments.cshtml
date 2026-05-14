@@ -5,6 +5,7 @@
 
 <section class="schedule-list full">
     <h3>Quản lý lịch hẹn khám bệnh</h3>
+    <p class="muted">Trang này chỉ dành cho Admin. Bệnh nhân và bác sĩ sẽ không thấy mục này trên menu.</p>
     <table>
         <thead>
             <tr>
@@ -12,6 +13,8 @@
                 <th>Bệnh nhân</th>
                 <th>Bác sĩ</th>
                 <th>Chuyên khoa</th>
+                <th>Dịch vụ</th>
+                <th>Phòng khám</th>
                 <th>Ngày</th>
                 <th>Giờ</th>
                 <th>Lý do</th>
@@ -27,13 +30,22 @@
                     <td>@a.PatientName</td>
                     <td>@a.DoctorName</td>
                     <td>@a.SpecialtyName</td>
+                    <td>@a.MedicalServiceName</td>
+                    <td>@a.ClinicRoomName</td>
                     <td>@a.WorkDate.ToString("dd/MM/yyyy")</td>
                     <td>@a.StartTime.ToString(@"hh\:mm") - @a.EndTime.ToString(@"hh\:mm")</td>
                     <td>@a.Reason</td>
-                    <td>@a.Status</td>
+                    <td><span class="status-pill @a.Status.ToLower()">@a.Status</span></td>
                     <td class="actions">
-                        <form asp-action="Confirm" method="post"><input type="hidden" name="id" value="@a.AppointmentId" /><button>Xác nhận</button></form>
-                        <form asp-action="Cancel" method="post"><input type="hidden" name="id" value="@a.AppointmentId" /><button>Hủy</button></form>
+                        @if (a.Status == "Pending")
+                        {
+                            <form asp-action="Confirm" method="post"><input type="hidden" name="id" value="@a.AppointmentId" /><button>Xác nhận</button></form>
+                        }
+                        @if (a.Status != "Cancelled" && a.Status != "Completed")
+                        {
+                            <form asp-action="Complete" method="post"><input type="hidden" name="id" value="@a.AppointmentId" /><button>Đã khám</button></form>
+                            <form asp-action="Cancel" method="post"><input type="hidden" name="id" value="@a.AppointmentId" /><button>Hủy</button></form>
+                        }
                     </td>
                 </tr>
             }

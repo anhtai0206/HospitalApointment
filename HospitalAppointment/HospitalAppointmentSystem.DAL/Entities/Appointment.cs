@@ -9,6 +9,8 @@ public class Appointment
     public int PatientId { get; set; }
     public int DoctorId { get; set; }
     public int ScheduleId { get; set; }
+    public int MedicalServiceId { get; set; }
+    public int ClinicRoomId { get; set; }
     public string Reason { get; set; } = string.Empty;
     public string Status { get; set; } = "Pending";
     public DateTime CreatedAt { get; set; }
@@ -16,4 +18,6 @@ public class Appointment
     public Patient? Patient { get; set; }
     public Doctor? Doctor { get; set; }
     public DoctorSchedule? DoctorSchedule { get; set; }
+    public MedicalService? MedicalService { get; set; }
+    public ClinicRoom? ClinicRoom { get; set; }
 }

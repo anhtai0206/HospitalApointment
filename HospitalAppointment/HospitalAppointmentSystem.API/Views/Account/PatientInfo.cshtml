@@ -1,0 +1,28 @@
+@model PatientProfileDTO
+@{
+    ViewData["Title"] = "Thông tin bệnh nhân";
+}
+
+<div class="page-header">
+    <div>
+        <p class="eyebrow">Hồ sơ cá nhân</p>
+        <h1>Thông tin bệnh nhân</h1>
+        <p class="page-desc">Cập nhật một lần để hệ thống lưu lại và dùng cho các lần đăng ký lịch khám sau.</p>
+    </div>
+    <a href="/Appointment/Create" class="ghost-link">Đăng ký lịch khám</a>
+</div>
+
+<section class="panel profile-panel">
+    <form asp-action="PatientInfo" method="post" class="two-column-form modern-form">
+        <input asp-for="PatientId" type="hidden" />
+        <input asp-for="UserId" type="hidden" />
+        <div class="form-row stacked"><label>Họ tên</label><input asp-for="FullName" /></div>
+        <div class="form-row stacked"><label>Email</label><input asp-for="Email" readonly /></div>
+        <div class="form-row stacked"><label>Số điện thoại</label><input asp-for="Phone" /></div>
+        <div class="form-row stacked"><label>Giới tính</label><select asp-for="Gender"><option value="">-- Chọn --</option><option>Nam</option><option>Nữ</option><option>Khác</option></select></div>
+        <div class="form-row stacked"><label>Ngày sinh</label><input asp-for="DateOfBirth" type="date" /></div>
+        <div class="form-row stacked"><label>BHYT/CCCD</label><input asp-for="HealthInsuranceNo" /></div>
+        <div class="form-row stacked full-row"><label>Địa chỉ</label><input asp-for="Address" /></div>
+        <button class="primary-button full-row" type="submit">Lưu thông tin</button>
+    </form>
+</section>

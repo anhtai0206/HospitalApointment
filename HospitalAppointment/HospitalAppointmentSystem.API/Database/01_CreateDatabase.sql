@@ -56,11 +56,27 @@ CREATE TABLE DoctorSchedules (
     Status NVARCHAR(30) NOT NULL DEFAULT N'Available'
 );
 
+CREATE TABLE MedicalServices (
+    MedicalServiceId INT IDENTITY PRIMARY KEY,
+    ServiceName NVARCHAR(100) NOT NULL,
+    Price DECIMAL(18,2) NOT NULL DEFAULT 0,
+    Description NVARCHAR(255)
+);
+
+CREATE TABLE ClinicRooms (
+    ClinicRoomId INT IDENTITY PRIMARY KEY,
+    SpecialtyId INT NOT NULL FOREIGN KEY REFERENCES Specialties(SpecialtyId),
+    RoomName NVARCHAR(100) NOT NULL,
+    Status NVARCHAR(30) NOT NULL DEFAULT N'Active'
+);
+
 CREATE TABLE Appointments (
     AppointmentId INT IDENTITY PRIMARY KEY,
     PatientId INT NOT NULL FOREIGN KEY REFERENCES Patients(PatientId),
     DoctorId INT NOT NULL FOREIGN KEY REFERENCES Doctors(DoctorId),
     ScheduleId INT NOT NULL FOREIGN KEY REFERENCES DoctorSchedules(ScheduleId),
+    MedicalServiceId INT NOT NULL FOREIGN KEY REFERENCES MedicalServices(MedicalServiceId),
+    ClinicRoomId INT NOT NULL FOREIGN KEY REFERENCES ClinicRooms(ClinicRoomId),
     Reason NVARCHAR(255),
     Status NVARCHAR(30) NOT NULL DEFAULT N'Pending',
     CreatedAt DATETIME NOT NULL DEFAULT GETDATE()

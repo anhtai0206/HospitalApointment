@@ -11,8 +11,8 @@ public class SchedulesApiController : ControllerBase
     public SchedulesApiController(IScheduleService scheduleService) => _scheduleService = scheduleService;
 
     [HttpGet("available")]
-    public async Task<IActionResult> GetAvailable([FromQuery] int? doctorId)
-        => Ok(await _scheduleService.GetAvailableAsync(doctorId));
+    public async Task<IActionResult> GetAvailable([FromQuery] int? doctorId, [FromQuery] int? specialtyId)
+        => Ok(await _scheduleService.GetAvailableAsync(doctorId, specialtyId));
 
     [HttpGet("doctor/{doctorId:int}")]
     public async Task<IActionResult> GetByDoctor(int doctorId)

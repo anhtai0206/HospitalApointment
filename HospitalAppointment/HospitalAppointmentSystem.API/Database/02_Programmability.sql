@@ -8,6 +8,8 @@ SELECT
     up.FullName AS PatientName,
     ud.FullName AS DoctorName,
     s.SpecialtyName,
+    ms.ServiceName AS MedicalServiceName,
+    cr.RoomName AS ClinicRoomName,
     ds.WorkDate,
     ds.StartTime,
     ds.EndTime,
@@ -20,7 +22,9 @@ JOIN Users up ON p.UserId = up.UserId
 JOIN Doctors d ON a.DoctorId = d.DoctorId
 JOIN Users ud ON d.UserId = ud.UserId
 JOIN Specialties s ON d.SpecialtyId = s.SpecialtyId
-JOIN DoctorSchedules ds ON a.ScheduleId = ds.ScheduleId;
+JOIN DoctorSchedules ds ON a.ScheduleId = ds.ScheduleId
+JOIN MedicalServices ms ON a.MedicalServiceId = ms.MedicalServiceId
+JOIN ClinicRooms cr ON a.ClinicRoomId = cr.ClinicRoomId;
 GO
 
 CREATE FUNCTION fn_GetAvailableSlot(@ScheduleId INT)
@@ -39,6 +43,8 @@ CREATE PROCEDURE sp_BookAppointment
     @PatientId INT,
     @DoctorId INT,
     @ScheduleId INT,
+    @MedicalServiceId INT,
+    @ClinicRoomId INT,
     @Reason NVARCHAR(255)
 AS
 BEGIN
@@ -65,6 +71,27 @@ BEGIN
             RETURN;
         END;
 
+
+        IF NOT EXISTS (SELECT 1 FROM MedicalServices WHERE MedicalServiceId = @MedicalServiceId)
+        BEGIN
+            RAISERROR(N'Dịch vụ khám không tồn tại.', 16, 1);
+            ROLLBACK TRANSACTION;
+            RETURN;
+        END;
+
+        IF NOT EXISTS (
+            SELECT 1 FROM ClinicRooms cr
+            JOIN Doctors d ON cr.SpecialtyId = d.SpecialtyId
+            WHERE cr.ClinicRoomId = @ClinicRoomId
+              AND d.DoctorId = @DoctorId
+              AND cr.Status = N'Active'
+        )
+        BEGIN
+            RAISERROR(N'Phòng khám không phù hợp với chuyên khoa của bác sĩ.', 16, 1);
+            ROLLBACK TRANSACTION;
+            RETURN;
+        END;
+
         IF EXISTS (
             SELECT 1 FROM Appointments
             WHERE PatientId = @PatientId
@@ -77,8 +104,8 @@ BEGIN
             RETURN;
         END;
 
-        INSERT INTO Appointments(PatientId, DoctorId, ScheduleId, Reason, Status, CreatedAt)
-        VALUES(@PatientId, @DoctorId, @ScheduleId, @Reason, N'Pending', GETDATE());
+        INSERT INTO Appointments(PatientId, DoctorId, ScheduleId, MedicalServiceId, ClinicRoomId, Reason, Status, CreatedAt)
+        VALUES(@PatientId, @DoctorId, @ScheduleId, @MedicalServiceId, @ClinicRoomId, @Reason, N'Pending', GETDATE());
 
         UPDATE DoctorSchedules
         SET CurrentPatients = CurrentPatients + 1

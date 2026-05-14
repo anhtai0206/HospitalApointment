@@ -9,13 +9,16 @@ public class ScheduleRepository : IScheduleRepository
     private readonly HospitalDbContext _db;
     public ScheduleRepository(HospitalDbContext db) => _db = db;
 
-    public async Task<List<ScheduleDTO>> GetAvailableAsync(int? doctorId = null)
+    public async Task<List<ScheduleDTO>> GetAvailableAsync(int? doctorId = null, int? specialtyId = null)
     {
         var today = DateTime.Today;
         var query = _db.DoctorSchedules
             .Include(s => s.Doctor)!.ThenInclude(d => d.User)
             .Include(s => s.Doctor)!.ThenInclude(d => d.Specialty)
             .Where(s => s.Status == "Available" && s.WorkDate >= today && s.CurrentPatients < s.MaxPatients);
+
+        if (specialtyId.HasValue)
+            query = query.Where(s => s.Doctor!.SpecialtyId == specialtyId.Value);
 
         if (doctorId.HasValue)
             query = query.Where(s => s.DoctorId == doctorId.Value);
@@ -28,6 +31,7 @@ public class ScheduleRepository : IScheduleRepository
                 ScheduleId = s.ScheduleId,
                 DoctorId = s.DoctorId,
                 DoctorName = s.Doctor!.User!.FullName,
+                SpecialtyId = s.Doctor.SpecialtyId,
                 SpecialtyName = s.Doctor.Specialty!.SpecialtyName,
                 WorkDate = s.WorkDate,
                 StartTime = s.StartTime,
@@ -51,6 +55,7 @@ public class ScheduleRepository : IScheduleRepository
                 ScheduleId = s.ScheduleId,
                 DoctorId = s.DoctorId,
                 DoctorName = s.Doctor!.User!.FullName,
+                SpecialtyId = s.Doctor.SpecialtyId,
                 SpecialtyName = s.Doctor.Specialty!.SpecialtyName,
                 WorkDate = s.WorkDate,
                 StartTime = s.StartTime,
