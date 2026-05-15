@@ -27,24 +27,24 @@
 <div class="quick-tabs">
     @if (User.Identity?.IsAuthenticated == true && User.IsInRole("Patient"))
     {
-        <button type="button" class="quick-tab active" onclick="scrollToBooking()">
+        <button id="tabBooking" type="button" class="quick-tab" onclick="showBookingPanel()">
             <span>📅</span> Đặt hẹn khám nhanh
         </button>
     }
     else
     {
-        <button type="button" class="quick-tab active" onclick="requireLoginToBook()">
+        <button id="tabBooking" type="button" class="quick-tab" onclick="requireLoginToBook()">
             <span>📅</span> Đặt hẹn khám nhanh
         </button>
     }
-    <button type="button" class="quick-tab blue" onclick="scrollToDoctors()">
+    <button id="tabDoctors" type="button" class="quick-tab blue active" onclick="showDoctorPanel()">
         <span>🩺</span> Chọn bác sĩ
     </button>
 </div>
 
 @if (User.Identity?.IsAuthenticated == true && User.IsInRole("Patient"))
 {
-    <section id="bookingSection" class="quick-booking-section">
+    <section id="bookingSection" class="quick-booking-section home-panel" style="display:none;">
         <div class="section-title compact-title">
             <span>ĐẶT LỊCH NHANH</span>
             <h2>Thông tin đặt hẹn</h2>
@@ -149,7 +149,7 @@ else
     <section id="bookingSection" hidden></section>
 }
 
-<section id="doctorSection" class="doctor-directory-section">
+<section id="doctorSection" class="doctor-directory-section home-panel">
     <div class="section-title">
         <span>ĐỘI NGŨ CHÚNG TÔI</span>
         <h2>Đội ngũ bác sĩ chất lượng<br /><strong>chuyên môn cao</strong></h2>
@@ -354,7 +354,7 @@ else
     }
 
     function chooseDoctorFromCard(specialtyId, doctorId) {
-        scrollToBooking();
+        showBookingPanel();
         if (!specialtySelect || !doctorSelect) return;
         specialtySelect.value = String(specialtyId);
         populateDoctors();
@@ -370,12 +370,30 @@ else
         window.location.href = '/Account/Login?returnUrl=/';
     }
 
-    function scrollToBooking() {
-        document.getElementById('bookingSection')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    function setActiveHomeTab(active) {
+        const tabBooking = document.getElementById('tabBooking');
+        const tabDoctors = document.getElementById('tabDoctors');
+        tabBooking?.classList.toggle('active', active === 'booking');
+        tabDoctors?.classList.toggle('active', active === 'doctors');
     }
 
-    function scrollToDoctors() {
-        document.getElementById('doctorSection')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    function showBookingPanel() {
+        const booking = document.getElementById('bookingSection');
+        const doctors = document.getElementById('doctorSection');
+        if (!booking || booking.hasAttribute('hidden')) return requireLoginToBook();
+        booking.style.display = 'block';
+        if (doctors) doctors.style.display = 'none';
+        setActiveHomeTab('booking');
+        booking.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function showDoctorPanel() {
+        const booking = document.getElementById('bookingSection');
+        const doctors = document.getElementById('doctorSection');
+        if (booking && !booking.hasAttribute('hidden')) booking.style.display = 'none';
+        if (doctors) doctors.style.display = 'block';
+        setActiveHomeTab('doctors');
+        doctors?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
     function validateQuickBooking() {
@@ -433,6 +451,12 @@ else
     });
 
     document.addEventListener('DOMContentLoaded', function () {
+        const booking = document.getElementById('bookingSection');
+        const doctors = document.getElementById('doctorSection');
+        if (booking && !booking.hasAttribute('hidden')) booking.style.display = 'none';
+        if (doctors) doctors.style.display = 'block';
+        setActiveHomeTab('doctors');
+
         if (!specialtySelect) return;
         setTodayLocal();
         populateDoctors();

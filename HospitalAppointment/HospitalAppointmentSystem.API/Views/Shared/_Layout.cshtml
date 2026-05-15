@@ -21,8 +21,6 @@
 
             @if (User.Identity?.IsAuthenticated == true && User.IsInRole("Patient"))
             {
-                <a href="/#bookingSection">Đặt lịch khám</a>
-                <a href="/#doctorSection">Danh sách bác sĩ</a>
                 <a href="/Appointment/MyAppointments">Lịch của tôi</a>
                 <a href="/Account/PatientInfo">Thông tin bệnh nhân</a>
             }
