@@ -20,7 +20,7 @@ public class DoctorRepository : IDoctorRepository
             query = query.Where(d => d.SpecialtyId == specialtyId.Value);
 
         return await query
-            .OrderBy(d => d.User!.FullName)
+            .OrderBy(d => d.DoctorId)
             .Select(d => new DoctorDTO
             {
                 DoctorId = d.DoctorId,

@@ -1,15 +1,442 @@
+@using System.Text.Json
+@using HospitalAppointmentSystem.DTO
+@model AppointmentDTO
 @{
     ViewData["Title"] = "Trang chủ";
+    var doctors = (List<DoctorDTO>)ViewBag.Doctors;
+    var allDoctors = (List<DoctorDTO>)ViewBag.AllDoctors;
+    var specialties = (List<SpecialtyDTO>)ViewBag.Specialties;
+    var schedules = (List<ScheduleDTO>)ViewBag.Schedules;
+    var services = (List<MedicalServiceDTO>)ViewBag.Services;
+    var rooms = (List<ClinicRoomDTO>)ViewBag.Rooms;
+    PatientProfileDTO? patientProfile = ViewBag.PatientProfile as PatientProfileDTO;
+    string today = ViewBag.Today as string ?? DateTime.Today.ToString("yyyy-MM-dd");
+    int? selectedSpecialtyId = ViewBag.SelectedSpecialtyId as int?;
+    string? doctorName = ViewBag.DoctorName as string;
+    var jsonOptions = new JsonSerializerOptions { PropertyNamingPolicy = null };
 }
 
-<div class="home-card">
-    <h1>Website đăng ký lịch khám bệnh</h1>
-    <p>Hệ thống được xây dựng theo cấu trúc nhiều project: API, BLL, DAL, DTO.</p>
-    <div class="home-actions">
-        @if (User.Identity?.IsAuthenticated == true && User.IsInRole("Patient"))
-        {
-            <a href="/Appointment/Create" class="main-button">Đăng ký lịch khám</a>
-        }
-        <a href="/Doctor" class="main-button secondary">Xem bác sĩ</a>
+<section class="landing-hero">
+    <div class="hero-overlay">
+        <p class="eyebrow">MEDBOOK CLINIC</p>
+        <h1>Đặt lịch khám bệnh trực tuyến</h1>
+        <p>Chọn chuyên khoa, bác sĩ, ngày khám và khung giờ phù hợp chỉ trong vài bước.</p>
     </div>
+</section>
+
+<div class="quick-tabs">
+    @if (User.Identity?.IsAuthenticated == true && User.IsInRole("Patient"))
+    {
+        <button type="button" class="quick-tab active" onclick="scrollToBooking()">
+            <span>📅</span> Đặt hẹn khám nhanh
+        </button>
+    }
+    else
+    {
+        <button type="button" class="quick-tab active" onclick="requireLoginToBook()">
+            <span>📅</span> Đặt hẹn khám nhanh
+        </button>
+    }
+    <button type="button" class="quick-tab blue" onclick="scrollToDoctors()">
+        <span>🩺</span> Chọn bác sĩ
+    </button>
 </div>
+
+@if (User.Identity?.IsAuthenticated == true && User.IsInRole("Patient"))
+{
+    <section id="bookingSection" class="quick-booking-section">
+        <div class="section-title compact-title">
+            <span>ĐẶT LỊCH NHANH</span>
+            <h2>Thông tin đặt hẹn</h2>
+        </div>
+
+        <div class="booking-card-new">
+            <div class="booking-left-new">
+                <form asp-controller="Home" asp-action="Book" method="post" onsubmit="return validateQuickBooking()">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" id="ScheduleId" name="ScheduleId" />
+                    <input type="hidden" id="DoctorId" name="DoctorId" />
+                    <input type="hidden" name="PatientId" value="@(patientProfile?.PatientId ?? 0)" />
+
+                    <div class="booking-grid-new">
+                        <div class="form-row-new">
+                            <label>Chuyên khoa</label>
+                            <select id="bookSpecialtyId" class="form-control">
+                                <option value="">-- Chọn chuyên khoa --</option>
+                                @foreach (var s in specialties)
+                                {
+                                    <option value="@s.SpecialtyId">@s.SpecialtyName</option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="form-row-new">
+                            <label>Bác sĩ</label>
+                            <select id="bookDoctorId" class="form-control" disabled>
+                                <option value="">-- Chọn bác sĩ --</option>
+                            </select>
+                        </div>
+
+                        <div class="form-row-new">
+                            <label>Ngày khám</label>
+                            <input id="bookDate" class="form-control" type="date" value="@today" min="@today" />
+                        </div>
+
+                        <div class="form-row-new">
+                            <label>Giờ khám</label>
+                            <select id="bookShift" class="form-control" disabled>
+                                <option value="">-- Chọn giờ khám --</option>
+                            </select>
+                        </div>
+
+                        <div class="form-row-new">
+                            <label>Dịch vụ</label>
+                            <select id="MedicalServiceId" name="MedicalServiceId" class="form-control" disabled>
+                                <option value="">-- Chọn dịch vụ --</option>
+                                @foreach (var service in services)
+                                {
+                                    <option value="@service.MedicalServiceId">@service.ServiceName</option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="form-row-new">
+                            <label>Phòng khám</label>
+                            <select id="ClinicRoomId" name="ClinicRoomId" class="form-control" disabled>
+                                <option value="">-- Chọn phòng khám --</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div id="selectedBox" class="selected-box empty quick-selected-box">
+                        <div class="selected-icon">✓</div>
+                        <div>
+                            <strong>Chưa chọn đủ thông tin</strong>
+                        </div>
+                    </div>
+
+                    <div class="form-row-new full-width-field">
+                        <label>Lý do khám</label>
+                        <textarea name="Reason" placeholder="Có thể để trống hoặc nhập triệu chứng..."></textarea>
+                    </div>
+
+                    <div class="button-group single">
+                        <button type="submit" class="btn-save booking-main-btn">Đăng ký lịch khám</button>
+                    </div>
+                </form>
+            </div>
+
+            <aside class="booking-profile-mini">
+                <div class="booking-avatar large">
+                    @if (!string.IsNullOrWhiteSpace(patientProfile?.PhotoUrl))
+                    {
+                        <img src="@patientProfile.PhotoUrl" alt="Ảnh bệnh nhân" />
+                    }
+                    else
+                    {
+                        <span>3x4</span>
+                    }
+                </div>
+                <h3>@(patientProfile?.FullName ?? "Bệnh nhân")</h3>
+                <p>Thông tin cá nhân lưu tại hồ sơ bệnh nhân.</p>
+                <a href="/Account/PatientInfo" class="ghost-link mini-link">Cập nhật hồ sơ</a>
+            </aside>
+        </div>
+    </section>
+}
+else
+{
+    <section id="bookingSection" hidden></section>
+}
+
+<section id="doctorSection" class="doctor-directory-section">
+    <div class="section-title">
+        <span>ĐỘI NGŨ CHÚNG TÔI</span>
+        <h2>Đội ngũ bác sĩ chất lượng<br /><strong>chuyên môn cao</strong></h2>
+    </div>
+
+    <form method="get" asp-controller="Home" asp-action="Index" class="doctor-search-bar">
+        <input name="doctorName" value="@doctorName" placeholder="Nhập tên bác sĩ..." />
+        <select name="specialtyId">
+            <option value="">Tất cả</option>
+            @foreach (var s in specialties)
+            {
+                if (selectedSpecialtyId == s.SpecialtyId)
+                {
+                    <option value="@s.SpecialtyId" selected>@s.SpecialtyName</option>
+                }
+                else
+                {
+                    <option value="@s.SpecialtyId">@s.SpecialtyName</option>
+                }
+            }
+        </select>
+        <button type="submit">Tìm kiếm</button>
+    </form>
+
+    <div class="doctor-card-grid">
+        @foreach (var d in doctors)
+        {
+            var nameParts = d.FullName.Replace("BS.", "").Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            var initials = nameParts.Length > 0 ? nameParts[^1].Substring(0, 1).ToUpper() : "BS";
+            <article class="doctor-card-new" data-doctor-id="@d.DoctorId" data-specialty-id="@d.SpecialtyId">
+                <div class="doctor-image-panel">
+                    <div class="doctor-portrait-placeholder">
+                        <span>@initials</span>
+                        <small>MEDBOOK</small>
+                    </div>
+                    @if (User.Identity?.IsAuthenticated == true && User.IsInRole("Patient"))
+                    {
+                        <button type="button" class="doctor-book-btn" onclick="chooseDoctorFromCard(@d.SpecialtyId, @d.DoctorId)">📅 Đặt lịch hẹn</button>
+                    }
+                    else
+                    {
+                        <button type="button" class="doctor-book-btn" onclick="requireLoginToBook()">📅 Đặt lịch hẹn</button>
+                    }
+                </div>
+                <div class="doctor-info-panel">
+                    <h3>@d.FullName.ToUpper()</h3>
+                    <p><span>🎓</span> @d.Qualification</p>
+                    <p><span>🏥</span> @d.Description<br /><strong>@d.ExperienceYears năm kinh nghiệm</strong></p>
+                    <p><span>🩺</span> @d.SpecialtyName</p>
+                </div>
+            </article>
+        }
+    </div>
+</section>
+
+<script>
+    const allDoctors = @Html.Raw(JsonSerializer.Serialize(allDoctors, jsonOptions));
+    const allSchedules = @Html.Raw(JsonSerializer.Serialize(schedules, jsonOptions));
+    const allRooms = @Html.Raw(JsonSerializer.Serialize(rooms, jsonOptions));
+
+    const shifts = [
+        { label: 'Ca 1: 07:30 - 09:30', start: '07:30:00', end: '09:30:00' },
+        { label: 'Ca 2: 09:45 - 12:00', start: '09:45:00', end: '12:00:00' },
+        { label: 'Ca 3: 13:30 - 15:30', start: '13:30:00', end: '15:30:00' },
+        { label: 'Ca 4: 15:45 - 18:00', start: '15:45:00', end: '18:00:00' }
+    ];
+
+    const specialtySelect = document.getElementById('bookSpecialtyId');
+    const doctorSelect = document.getElementById('bookDoctorId');
+    const dateInput = document.getElementById('bookDate');
+    const shiftSelect = document.getElementById('bookShift');
+    const serviceSelect = document.getElementById('MedicalServiceId');
+    const roomSelect = document.getElementById('ClinicRoomId');
+    const hiddenScheduleId = document.getElementById('ScheduleId');
+    const hiddenDoctorId = document.getElementById('DoctorId');
+
+    function normalizeTime(value) {
+        if (!value) return '';
+        return value.length === 5 ? value + ':00' : value;
+    }
+
+    function formatDateFromSchedule(value) {
+        return value ? value.substring(0, 10) : '';
+    }
+
+    function setTodayLocal() {
+        if (!dateInput) return;
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const today = `${year}-${month}-${day}`;
+        dateInput.value = today;
+        dateInput.min = today;
+    }
+
+    function resetSelect(select, placeholder) {
+        select.innerHTML = `<option value="">${placeholder}</option>`;
+    }
+
+    function populateDoctors() {
+        if (!specialtySelect || !doctorSelect || !shiftSelect || !roomSelect || !serviceSelect) return;
+        const specialtyId = specialtySelect.value;
+        resetSelect(doctorSelect, '-- Chọn bác sĩ --');
+        resetSelect(shiftSelect, '-- Chọn giờ khám --');
+        resetSelect(roomSelect, '-- Chọn phòng khám --');
+        doctorSelect.disabled = !specialtyId;
+        shiftSelect.disabled = true;
+        roomSelect.disabled = true;
+        serviceSelect.disabled = true;
+        serviceSelect.value = '';
+        hiddenScheduleId.value = '';
+        hiddenDoctorId.value = '';
+        updateSelectedBox();
+
+        if (!specialtyId) return;
+        allDoctors
+            .filter(d => String(d.SpecialtyId) === String(specialtyId))
+            .sort((a, b) => a.DoctorId - b.DoctorId)
+            .forEach(d => {
+                const option = document.createElement('option');
+                option.value = d.DoctorId;
+                option.textContent = d.FullName;
+                doctorSelect.appendChild(option);
+            });
+    }
+
+    function populateRooms() {
+        if (!specialtySelect || !roomSelect) return;
+        const specialtyId = specialtySelect.value;
+        resetSelect(roomSelect, '-- Chọn phòng khám --');
+        if (!specialtyId || !doctorSelect.value) {
+            roomSelect.disabled = true;
+            return;
+        }
+        allRooms
+            .filter(r => String(r.SpecialtyId) === String(specialtyId))
+            .forEach(r => {
+                const option = document.createElement('option');
+                option.value = r.ClinicRoomId;
+                option.textContent = r.RoomName;
+                roomSelect.appendChild(option);
+            });
+        roomSelect.disabled = false;
+    }
+
+    function populateShifts() {
+        if (!doctorSelect || !dateInput || !shiftSelect || !serviceSelect || !roomSelect) return;
+        const doctorId = doctorSelect.value;
+        const dateValue = dateInput.value;
+        resetSelect(shiftSelect, '-- Chọn giờ khám --');
+        hiddenScheduleId.value = '';
+        hiddenDoctorId.value = doctorId || '';
+        shiftSelect.disabled = !(doctorId && dateValue);
+        serviceSelect.disabled = !(doctorId && dateValue);
+        roomSelect.disabled = !(doctorId && dateValue);
+        updateSelectedBox();
+
+        if (!(doctorId && dateValue)) return;
+
+        shifts.forEach(shift => {
+            const matched = allSchedules.find(s =>
+                String(s.DoctorId) === String(doctorId) &&
+                formatDateFromSchedule(s.WorkDate) === dateValue &&
+                normalizeTime(s.StartTime) === shift.start &&
+                normalizeTime(s.EndTime) === shift.end &&
+                s.AvailableSlots > 0
+            );
+
+            const option = document.createElement('option');
+            option.value = matched ? matched.ScheduleId : '';
+            option.textContent = matched ? `${shift.label} (${matched.AvailableSlots} slot)` : `${shift.label} (hết lịch)`;
+            option.disabled = !matched;
+            if (matched) {
+                option.dataset.scheduleId = matched.ScheduleId;
+                option.dataset.availableSlots = matched.AvailableSlots;
+            }
+            shiftSelect.appendChild(option);
+        });
+    }
+
+    function updateSelectedBox() {
+        const box = document.getElementById('selectedBox');
+        if (!box || !specialtySelect || !doctorSelect || !shiftSelect || !dateInput) return;
+        const specialtyText = specialtySelect.options[specialtySelect.selectedIndex]?.text || '';
+        const doctorText = doctorSelect.options[doctorSelect.selectedIndex]?.text || '';
+        const shiftText = shiftSelect.options[shiftSelect.selectedIndex]?.text || '';
+
+        if (specialtySelect.value && doctorSelect.value && dateInput.value && hiddenScheduleId.value) {
+            box.classList.remove('empty');
+            box.innerHTML = `
+                <div class="selected-icon">✓</div>
+                <div>
+                    <strong>Đã chọn lịch khám</strong>
+                    <span>${doctorText} - ${specialtyText}</span>
+                    <span>${dateInput.value}, ${shiftText}</span>
+                </div>`;
+        } else {
+            box.classList.add('empty');
+            box.innerHTML = `<div class="selected-icon">✓</div><div><strong>Chưa chọn đủ thông tin</strong></div>`;
+        }
+    }
+
+    function chooseDoctorFromCard(specialtyId, doctorId) {
+        scrollToBooking();
+        if (!specialtySelect || !doctorSelect) return;
+        specialtySelect.value = String(specialtyId);
+        populateDoctors();
+        doctorSelect.value = String(doctorId);
+        populateRooms();
+        populateShifts();
+        updateSelectedBox();
+    }
+
+
+    function requireLoginToBook() {
+        alert('Bạn cần đăng nhập bằng tài khoản bệnh nhân để đặt lịch khám.');
+        window.location.href = '/Account/Login?returnUrl=/';
+    }
+
+    function scrollToBooking() {
+        document.getElementById('bookingSection')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function scrollToDoctors() {
+        document.getElementById('doctorSection')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function validateQuickBooking() {
+        if (!specialtySelect || !doctorSelect || !dateInput || !shiftSelect || !serviceSelect || !roomSelect) return false;
+        if (!specialtySelect.value) {
+            showBookingMessage('Vui lòng chọn chuyên khoa.');
+            return false;
+        }
+        if (!doctorSelect.value) {
+            showBookingMessage('Vui lòng chọn bác sĩ.');
+            return false;
+        }
+        if (!dateInput.value) {
+            showBookingMessage('Vui lòng chọn ngày khám.');
+            return false;
+        }
+        if (!hiddenScheduleId.value) {
+            showBookingMessage('Vui lòng chọn khung giờ còn slot khám.');
+            return false;
+        }
+        if (!serviceSelect.value) {
+            showBookingMessage('Vui lòng chọn dịch vụ khám.');
+            return false;
+        }
+        if (!roomSelect.value) {
+            showBookingMessage('Vui lòng chọn phòng khám.');
+            return false;
+        }
+        return true;
+    }
+
+    function showBookingMessage(message) {
+        const box = document.getElementById('selectedBox');
+        box.classList.add('empty', 'shake');
+        box.innerHTML = `<div class="selected-icon">!</div><div><strong>${message}</strong></div>`;
+        setTimeout(() => box.classList.remove('shake'), 450);
+    }
+
+    specialtySelect?.addEventListener('change', function () {
+        populateDoctors();
+        populateRooms();
+    });
+
+    doctorSelect?.addEventListener('change', function () {
+        hiddenDoctorId.value = doctorSelect.value;
+        populateRooms();
+        populateShifts();
+    });
+
+    dateInput?.addEventListener('change', populateShifts);
+
+    shiftSelect?.addEventListener('change', function () {
+        hiddenScheduleId.value = shiftSelect.value || '';
+        updateSelectedBox();
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+        if (!specialtySelect) return;
+        setTodayLocal();
+        populateDoctors();
+        populateRooms();
+        populateShifts();
+    });
+</script>

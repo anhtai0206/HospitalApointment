@@ -14,28 +14,23 @@ public class AppointmentController : Controller
     private readonly ISpecialtyService _specialtyService;
     private readonly IScheduleService _scheduleService;
     private readonly ILookupService _lookupService;
+    private readonly IAuthService _authService;
 
-    public AppointmentController(IAppointmentService appointmentService, IDoctorService doctorService, ISpecialtyService specialtyService, IScheduleService scheduleService, ILookupService lookupService)
+    public AppointmentController(IAppointmentService appointmentService, IDoctorService doctorService, ISpecialtyService specialtyService, IScheduleService scheduleService, ILookupService lookupService, IAuthService authService)
     {
         _appointmentService = appointmentService;
         _doctorService = doctorService;
         _specialtyService = specialtyService;
         _scheduleService = scheduleService;
         _lookupService = lookupService;
+        _authService = authService;
     }
 
     [Authorize(Roles = "Patient")]
     [HttpGet]
-    public async Task<IActionResult> Create(int? specialtyId, int? doctorId)
+    public IActionResult Create()
     {
-        ViewBag.SelectedSpecialtyId = specialtyId;
-        ViewBag.SelectedDoctorId = doctorId;
-        ViewBag.Specialties = await _specialtyService.GetAllAsync();
-        ViewBag.Doctors = await _doctorService.GetAllAsync(specialtyId);
-        ViewBag.Schedules = await _scheduleService.GetAvailableAsync(doctorId, specialtyId);
-        ViewBag.Services = await _lookupService.GetMedicalServicesAsync();
-        ViewBag.Rooms = await _lookupService.GetClinicRoomsAsync();
-        return View(new AppointmentDTO { PatientId = GetPatientId() });
+        return RedirectToAction("Index", "Home");
     }
 
     [Authorize(Roles = "Patient")]
@@ -45,7 +40,7 @@ public class AppointmentController : Controller
         dto.PatientId = GetPatientId();
         var result = await _appointmentService.BookAppointmentAsync(dto);
         TempData[result.Success ? "Success" : "Error"] = result.Message;
-        return RedirectToAction(nameof(Create));
+        return RedirectToAction("Index", "Home");
     }
 
     [Authorize(Roles = "Patient")]

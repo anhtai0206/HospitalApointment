@@ -24,7 +24,8 @@ public class ScheduleRepository : IScheduleRepository
             query = query.Where(s => s.DoctorId == doctorId.Value);
 
         return await query
-            .OrderBy(s => s.WorkDate)
+            .OrderBy(s => s.DoctorId)
+            .ThenBy(s => s.WorkDate)
             .ThenBy(s => s.StartTime)
             .Select(s => new ScheduleDTO
             {

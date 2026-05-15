@@ -21,7 +21,6 @@ public class AppointmentDTO
     [Required]
     public int ClinicRoomId { get; set; }
 
-    [Required(ErrorMessage = "Vui lòng nhập lý do khám")]
     public string Reason { get; set; } = string.Empty;
 
     public string Status { get; set; } = "Pending";

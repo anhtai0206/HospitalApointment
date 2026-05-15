@@ -25,8 +25,6 @@ public class AppointmentService : IAppointmentService
         if (dto.ScheduleId <= 0) return ApiResponse.Fail("Vui lòng chọn lịch khám");
         if (dto.MedicalServiceId <= 0) return ApiResponse.Fail("Vui lòng chọn dịch vụ khám");
         if (dto.ClinicRoomId <= 0) return ApiResponse.Fail("Vui lòng chọn phòng khám");
-        if (string.IsNullOrWhiteSpace(dto.Reason)) return ApiResponse.Fail("Vui lòng nhập lý do khám");
-
         var schedule = await _scheduleRepository.GetByIdAsync(dto.ScheduleId);
         if (schedule == null) return ApiResponse.Fail("Lịch khám không tồn tại");
         if (schedule.WorkDate.Date < DateTime.Today) return ApiResponse.Fail("Không thể đặt lịch trong quá khứ");

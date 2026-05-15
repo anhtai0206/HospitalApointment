@@ -2,6 +2,7 @@ using HospitalAppointmentSystem.DAL.Data;
 using HospitalAppointmentSystem.DAL.Entities;
 using HospitalAppointmentSystem.DTO;
 using Microsoft.EntityFrameworkCore;
+using System.Text.RegularExpressions;
 
 namespace HospitalAppointmentSystem.DAL.Repositories;
 
@@ -41,6 +42,9 @@ public class AuthRepository : IAuthRepository
         if (dto.Password != dto.ConfirmPassword)
             return ApiResponse.Fail("Xác nhận mật khẩu không khớp");
 
+        if (!IsStrongPassword(dto.Password))
+            return ApiResponse.Fail(PasswordRuleMessage);
+
         var email = dto.Email.Trim().ToLower();
         if (await _db.Users.AnyAsync(u => u.Email.ToLower() == email))
             return ApiResponse.Fail("Email đã tồn tại trong hệ thống");
@@ -79,6 +83,9 @@ public class AuthRepository : IAuthRepository
         if (dto.NewPassword != dto.ConfirmPassword)
             return ApiResponse.Fail("Xác nhận mật khẩu mới không khớp");
 
+        if (!IsStrongPassword(dto.NewPassword))
+            return ApiResponse.Fail(PasswordRuleMessage);
+
         var user = await _db.Users.FirstOrDefaultAsync(u => u.UserId == userId);
         if (user == null) return ApiResponse.Fail("Không tìm thấy người dùng");
         if (user.PasswordHash != dto.OldPassword) return ApiResponse.Fail("Mật khẩu cũ không đúng");
@@ -95,6 +102,9 @@ public class AuthRepository : IAuthRepository
 
         if (dto.NewPassword != dto.ConfirmPassword)
             return ApiResponse.Fail("Xác nhận mật khẩu mới không khớp");
+
+        if (!IsStrongPassword(dto.NewPassword))
+            return ApiResponse.Fail(PasswordRuleMessage);
 
         var email = dto.Email.Trim().ToLower();
         var user = await _db.Users.FirstOrDefaultAsync(u => u.Email.ToLower() == email);
@@ -120,7 +130,8 @@ public class AuthRepository : IAuthRepository
                 Gender = p.Gender,
                 DateOfBirth = p.DateOfBirth,
                 Address = p.Address,
-                HealthInsuranceNo = p.HealthInsuranceNo
+                HealthInsuranceNo = p.HealthInsuranceNo,
+                PhotoUrl = p.PhotoUrl
             })
             .FirstOrDefaultAsync();
     }
@@ -139,10 +150,23 @@ public class AuthRepository : IAuthRepository
         patient.DateOfBirth = dto.DateOfBirth;
         patient.Address = dto.Address ?? string.Empty;
         patient.HealthInsuranceNo = dto.HealthInsuranceNo ?? string.Empty;
+        if (!string.IsNullOrWhiteSpace(dto.PhotoUrl))
+            patient.PhotoUrl = dto.PhotoUrl;
 
         await _db.SaveChangesAsync();
         return ApiResponse.Ok("Cập nhật thông tin bệnh nhân thành công");
     }
+
+
+    private static bool IsStrongPassword(string password)
+    {
+        if (string.IsNullOrWhiteSpace(password)) return false;
+        return password.Length >= 6
+               && Regex.IsMatch(password, "[A-Z]")
+               && Regex.IsMatch(password, "[^a-zA-Z0-9]");
+    }
+
+    private const string PasswordRuleMessage = "Mật khẩu phải có ít nhất 6 ký tự, gồm ít nhất 1 chữ viết hoa và 1 ký tự đặc biệt. Ví dụ: A12345@";
 
     private static UserSessionDTO ToSession(User user) => new()
     {

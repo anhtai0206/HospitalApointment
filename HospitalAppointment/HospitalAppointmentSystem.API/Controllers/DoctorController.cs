@@ -18,12 +18,9 @@ public class DoctorController : Controller
         _appointmentService = appointmentService;
     }
 
-    public async Task<IActionResult> Index(int? specialtyId)
+    public IActionResult Index(int? specialtyId)
     {
-        ViewBag.Specialties = await _specialtyService.GetAllAsync();
-        ViewBag.SelectedSpecialtyId = specialtyId;
-        var doctors = await _doctorService.GetAllAsync(specialtyId);
-        return View(doctors);
+        return Redirect($"/#doctorSection");
     }
 
     [Authorize(Roles = "Doctor")]

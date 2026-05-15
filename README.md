@@ -7,21 +7,19 @@ Project website đăng ký lịch khám bệnh theo kiến trúc nhiều project
 - `HospitalAppointmentSystem.DAL`: Entity Framework, LINQ, ADO.NET, Repository, DbContext
 - `HospitalAppointmentSystem.DTO`: đối tượng truyền dữ liệu
 
-## Chức năng đã bổ sung
+## Các chỉnh sửa mới
 
-- Đăng nhập có chứng thực bằng Cookie Authentication.
-- Phân quyền theo role: `Admin`, `Doctor`, `Patient`.
-- Menu tự ẩn/hiện theo role.
-- Patient: đăng ký lịch khám, xem lịch của tôi, hủy lịch của tôi, đổi mật khẩu.
-- Doctor: xem lịch khám của bác sĩ, cập nhật trạng thái đã khám.
-- Admin: quản lý toàn bộ lịch hẹn, xác nhận, hủy, cập nhật đã khám.
-- Đăng ký tài khoản bệnh nhân.
-- Đổi mật khẩu.
-- Seed database mở rộng: 10 chuyên khoa, 15 bác sĩ, 7 bệnh nhân, 45 lịch làm việc và 10 lịch hẹn mẫu.
+- Đổi font chữ sang nhóm font hỗ trợ tiếng Việt tốt hơn: `Segoe UI`, `Roboto`, `Arial`.
+- Mật khẩu tài khoản mẫu đổi thành `A12345@`.
+- Đăng ký, đổi mật khẩu và quên mật khẩu đều kiểm tra mật khẩu phải có ít nhất 1 chữ viết hoa và 1 ký tự đặc biệt.
+- Xóa tài khoản `DoctorProfile`; database mẫu chỉ còn 1 Admin, 1 Bệnh nhân và 6 Bác sĩ.
+- Danh sách bác sĩ/lịch khám được sắp xếp theo mã bác sĩ để không bị hiển thị ngẫu nhiên.
+- Thông báo thành công/lỗi đổi từ box đầu trang sang popup giữa màn hình.
+- Lý do khám không bắt buộc, có thể để trống vẫn đăng ký được.
 
 ## Tài khoản demo
 
-Mật khẩu của tất cả tài khoản mẫu: `123456`
+Mật khẩu của tất cả tài khoản mẫu: `A12345@`
 
 ### Admin
 
@@ -35,24 +33,9 @@ Mật khẩu của tất cả tài khoản mẫu: `123456`
 - `duc@clinic.vn`
 - `hanh@clinic.vn`
 - `khanh@clinic.vn`
-- `lan@clinic.vn`
-- `nam@clinic.vn`
-- `mai@clinic.vn`
-- `phuc@clinic.vn`
-- `son@clinic.vn`
-- `thao@clinic.vn`
-- `tu@clinic.vn`
-- `quan@clinic.vn`
-- `vy@clinic.vn`
 
 ### Bệnh nhân
 
-- `khang.patient@clinic.vn`
-- `an.patient@clinic.vn`
-- `tam.patient@clinic.vn`
-- `bao.patient@clinic.vn`
-- `ha.patient@clinic.vn`
-- `kiet.patient@clinic.vn`
 - `patient.demo@clinic.vn`
 
 ## Cách chạy
@@ -66,6 +49,8 @@ Mật khẩu của tất cả tài khoản mẫu: `123456`
 4. Kiểm tra connection string trong `HospitalAppointmentSystem.API/appsettings.json`.
 5. Chạy project.
 
+Lưu ý: cần chạy lại `01_CreateDatabase.sql` để xóa dữ liệu cũ có `DoctorProfile` và tạo lại database mới.
+
 ## Trang chính
 
 - `/Account/Login`: Đăng nhập
@@ -74,5 +59,52 @@ Mật khẩu của tất cả tài khoản mẫu: `123456`
 - `/Appointment/MyAppointments`: Bệnh nhân xem/hủy lịch của mình
 - `/Doctor/MySchedule`: Bác sĩ xem lịch khám của mình
 - `/Admin/Appointments`: Admin quản lý lịch hẹn
+- `/Account/PatientInfo`: Cập nhật thông tin bệnh nhân
 - `/Account/ChangePassword`: Đổi mật khẩu
-- `/swagger`: Test Web API
+- `/swagger`: Test Web API, chỉ hiển thị trong menu của Admin
+
+## Cấu hình Cloudinary để lưu ảnh bệnh nhân
+
+Chức năng Thông tin bệnh nhân cho phép tải ảnh hồ sơ 3x4 lên Cloudinary. Trước khi dùng chức năng này, mở file:
+
+```text
+HospitalAppointmentSystem.API/appsettings.json
+```
+
+Thay các giá trị sau bằng thông tin tài khoản Cloudinary của bạn:
+
+```json
+"Cloudinary": {
+  "CloudName": "YOUR_CLOUD_NAME",
+  "ApiKey": "YOUR_API_KEY",
+  "ApiSecret": "YOUR_API_SECRET",
+  "Folder": "hospital-patient-photos"
+}
+```
+
+Sau đó chạy lại database vì bảng Patients đã thêm cột PhotoUrl:
+
+```text
+01_CreateDatabase.sql
+02_Programmability.sql
+03_SeedData.sql
+```
+
+Ảnh cho phép tải lên: JPG, PNG, WEBP; dung lượng tối đa 2MB. Đường dẫn ảnh Cloudinary được lưu trong cột Patients.PhotoUrl.
+
+## Bản tích hợp trang chủ - bác sĩ - đặt lịch
+
+Bản này đã gộp Trang chủ, Danh sách bác sĩ và Đăng ký lịch khám vào một trang chính `/`.
+
+Quy trình đặt lịch mới:
+1. Chọn chuyên khoa.
+2. Chọn bác sĩ thuộc chuyên khoa.
+3. Chọn ngày khám, mặc định là ngày hiện tại theo máy người dùng.
+4. Chọn 1 trong 4 ca khám:
+   - Ca 1: 07:30 - 09:30
+   - Ca 2: 09:45 - 12:00
+   - Ca 3: 13:30 - 15:30
+   - Ca 4: 15:45 - 18:00
+5. Chọn dịch vụ, phòng khám và nhập lý do khám nếu có.
+
+Database đã được cập nhật để mỗi bác sĩ có 4 ca/ngày, mỗi ca tối đa 20 slot khám.

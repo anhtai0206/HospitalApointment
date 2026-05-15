@@ -85,7 +85,7 @@ public class AppointmentRepository : IAppointmentRepository
             cmd.Parameters.AddWithValue("@ScheduleId", dto.ScheduleId);
             cmd.Parameters.AddWithValue("@MedicalServiceId", dto.MedicalServiceId);
             cmd.Parameters.AddWithValue("@ClinicRoomId", dto.ClinicRoomId);
-            cmd.Parameters.AddWithValue("@Reason", dto.Reason);
+            cmd.Parameters.AddWithValue("@Reason", string.IsNullOrWhiteSpace(dto.Reason) ? DBNull.Value : dto.Reason.Trim());
 
             await conn.OpenAsync();
             await cmd.ExecuteNonQueryAsync();

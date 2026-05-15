@@ -3,6 +3,8 @@
     ViewData["Title"] = "Đăng ký lịch khám";
     int? selectedSpecialtyId = ViewBag.SelectedSpecialtyId as int?;
     int? selectedDoctorId = ViewBag.SelectedDoctorId as int?;
+    PatientProfileDTO? patientProfile = ViewBag.PatientProfile as PatientProfileDTO;
+    var patientPhoto = patientProfile?.PhotoUrl;
 }
 
 <div class="page-header">
@@ -112,6 +114,23 @@
         <div class="panel-title-row compact">
             <div>
                 <h3>Thông tin đăng ký</h3>
+            </div>
+        </div>
+
+        <div class="booking-patient-photo-row">
+            <div class="booking-avatar">
+                @if (!string.IsNullOrWhiteSpace(patientPhoto))
+                {
+                    <img src="@patientPhoto" alt="Ảnh bệnh nhân" />
+                }
+                else
+                {
+                    <span>3x4</span>
+                }
+            </div>
+            <div>
+                <strong>@(patientProfile?.FullName ?? "Bệnh nhân")</strong>
+                <a href="/Account/PatientInfo">Cập nhật ảnh hồ sơ</a>
             </div>
         </div>
 

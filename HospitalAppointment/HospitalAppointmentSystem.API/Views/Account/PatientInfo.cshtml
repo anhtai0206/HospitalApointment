@@ -1,21 +1,23 @@
 @model PatientProfileDTO
 @{
     ViewData["Title"] = "Thông tin bệnh nhân";
+    var photo = string.IsNullOrWhiteSpace(Model.PhotoUrl) ? null : Model.PhotoUrl;
 }
 
 <div class="page-header">
     <div>
         <p class="eyebrow">Hồ sơ cá nhân</p>
         <h1>Thông tin bệnh nhân</h1>
-        <p class="page-desc">Cập nhật một lần để hệ thống lưu lại và dùng cho các lần đăng ký lịch khám sau.</p>
     </div>
     <a href="/Appointment/Create" class="ghost-link">Đăng ký lịch khám</a>
 </div>
 
-<section class="panel profile-panel">
-    <form asp-action="PatientInfo" method="post" class="two-column-form modern-form">
+<section class="panel profile-panel profile-with-photo">
+    <form asp-action="PatientInfo" method="post" enctype="multipart/form-data" class="two-column-form modern-form profile-form-left">
         <input asp-for="PatientId" type="hidden" />
         <input asp-for="UserId" type="hidden" />
+        <input asp-for="PhotoUrl" type="hidden" />
+
         <div class="form-row stacked"><label>Họ tên</label><input asp-for="FullName" /></div>
         <div class="form-row stacked"><label>Email</label><input asp-for="Email" readonly /></div>
         <div class="form-row stacked"><label>Số điện thoại</label><input asp-for="Phone" /></div>
@@ -23,6 +25,51 @@
         <div class="form-row stacked"><label>Ngày sinh</label><input asp-for="DateOfBirth" type="date" /></div>
         <div class="form-row stacked"><label>BHYT/CCCD</label><input asp-for="HealthInsuranceNo" /></div>
         <div class="form-row stacked full-row"><label>Địa chỉ</label><input asp-for="Address" /></div>
+
+        <div class="form-row stacked full-row photo-upload-inline">
+            <label>Ảnh bệnh nhân 3x4</label>
+            <input id="photoFile" name="photoFile" type="file" accept="image/*" />
+        </div>
+
         <button class="primary-button full-row" type="submit">Lưu thông tin</button>
     </form>
+
+    <aside class="profile-photo-card">
+        <div class="profile-photo-frame">
+            @if (photo != null)
+            {
+                <img id="photoPreview" src="@photo" alt="Ảnh bệnh nhân" />
+            }
+            else
+            {
+                <div id="photoPlaceholder" class="photo-placeholder">
+                    <span>Ảnh 3x4</span>
+                    <small>Chưa tải ảnh</small>
+                </div>
+                <img id="photoPreview" src="" alt="Ảnh bệnh nhân" style="display:none;" />
+            }
+        </div>
+        <h3>Ảnh hồ sơ</h3>
+        <p>Ảnh được tải lên Cloudinary và lưu đường dẫn vào hồ sơ bệnh nhân.</p>
+        <label for="photoFile" class="ghost-link photo-pick-button">Chọn ảnh</label>
+    </aside>
 </section>
+
+<script>
+    const photoInput = document.getElementById('photoFile');
+    const photoPreview = document.getElementById('photoPreview');
+    const photoPlaceholder = document.getElementById('photoPlaceholder');
+
+    photoInput?.addEventListener('change', function () {
+        const file = this.files && this.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            photoPreview.src = e.target.result;
+            photoPreview.style.display = 'block';
+            if (photoPlaceholder) photoPlaceholder.style.display = 'none';
+        };
+        reader.readAsDataURL(file);
+    });
+</script>

@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using HospitalAppointmentSystem.API.Services;
 using HospitalAppointmentSystem.BLL.Services;
 using HospitalAppointmentSystem.DTO;
 using Microsoft.AspNetCore.Authentication;
@@ -11,7 +12,13 @@ namespace HospitalAppointmentSystem.API.Controllers;
 public class AccountController : Controller
 {
     private readonly IAuthService _authService;
-    public AccountController(IAuthService authService) => _authService = authService;
+    private readonly ICloudinaryPhotoService _photoService;
+
+    public AccountController(IAuthService authService, ICloudinaryPhotoService photoService)
+    {
+        _authService = authService;
+        _photoService = photoService;
+    }
 
     [HttpGet]
     public IActionResult Login(string? returnUrl = null)
@@ -92,9 +99,23 @@ public class AccountController : Controller
 
     [Authorize(Roles = "Patient")]
     [HttpPost]
-    public async Task<IActionResult> PatientInfo(PatientProfileDTO dto)
+    public async Task<IActionResult> PatientInfo(PatientProfileDTO dto, IFormFile? photoFile)
     {
-        var result = await _authService.UpdatePatientProfileAsync(GetPatientId(), dto);
+        var patientId = GetPatientId();
+
+        if (photoFile != null && photoFile.Length > 0)
+        {
+            var uploadResult = await _photoService.UploadPatientPhotoAsync(photoFile, patientId);
+            if (!uploadResult.Success)
+            {
+                TempData["Error"] = uploadResult.Message;
+                return View(dto);
+            }
+
+            dto.PhotoUrl = uploadResult.Data ?? string.Empty;
+        }
+
+        var result = await _authService.UpdatePatientProfileAsync(patientId, dto);
         TempData[result.Success ? "Success" : "Error"] = result.Message;
         if (!result.Success) return View(dto);
         return RedirectToAction(nameof(PatientInfo));

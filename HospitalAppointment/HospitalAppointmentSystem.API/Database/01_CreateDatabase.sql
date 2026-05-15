@@ -42,7 +42,8 @@ CREATE TABLE Patients (
     Gender NVARCHAR(10),
     DateOfBirth DATE,
     Address NVARCHAR(255),
-    HealthInsuranceNo VARCHAR(50)
+    HealthInsuranceNo VARCHAR(50),
+    PhotoUrl NVARCHAR(500)
 );
 
 CREATE TABLE DoctorSchedules (
