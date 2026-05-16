@@ -13,11 +13,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Administrator\\Downloads\\HospitalApointment\\HospitalAppointment\\HospitalAppointmentSystem.DTO\\HospitalAppointmentSystem.DTO.csproj",
+      "projectUniqueName": "C:\\Users\\Administrator\\Downloads\\HospitalAppointmentSystem_MultiProject\\HospitalAppointmentSystem.DTO\\HospitalAppointmentSystem.DTO.csproj",
       "projectName": "HospitalAppointmentSystem.DTO",
-      "projectPath": "C:\\Users\\Administrator\\Downloads\\HospitalApointment\\HospitalAppointment\\HospitalAppointmentSystem.DTO\\HospitalAppointmentSystem.DTO.csproj",
+      "projectPath": "C:\\Users\\Administrator\\Downloads\\HospitalAppointmentSystem_MultiProject\\HospitalAppointmentSystem.DTO\\HospitalAppointmentSystem.DTO.csproj",
       "packagesPath": "C:\\Users\\Administrator\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Administrator\\Downloads\\HospitalApointment\\HospitalAppointment\\HospitalAppointmentSystem.DTO\\obj\\",
+      "outputPath": "C:\\Users\\Administrator\\Downloads\\HospitalAppointmentSystem_MultiProject\\HospitalAppointmentSystem.DTO\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\Administrator\\AppData\\Roaming\\NuGet\\NuGet.Config",

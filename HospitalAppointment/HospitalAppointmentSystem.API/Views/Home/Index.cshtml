@@ -221,6 +221,8 @@ else
         { code: 'CA4', label: 'Ca 4: 15:45 - 18:00', start: '15:45:00', end: '18:00:00' }
     ];
 
+    function t(text) { return window.medbookT ? window.medbookT(text) : text; }
+
     const specialtySelect = document.getElementById('bookSpecialtyId');
     const doctorSelect = document.getElementById('bookDoctorId');
     const dateInput = document.getElementById('bookDate');
@@ -251,7 +253,7 @@ else
     }
 
     function resetSelect(select, placeholder) {
-        select.innerHTML = `<option value="">${placeholder}</option>`;
+        select.innerHTML = `<option value="">${t(placeholder)}</option>`;
     }
 
     function populateDoctors() {
@@ -318,7 +320,7 @@ else
         shifts.forEach(shift => {
             const option = document.createElement('option');
             option.value = shift.code;
-            option.textContent = `${shift.label} (tối đa 20 slot)`;
+            option.textContent = `${t(shift.label)} (${t('tối đa 20 slot')})`;
             option.dataset.start = shift.start;
             option.dataset.end = shift.end;
             shiftSelect.appendChild(option);
@@ -337,13 +339,13 @@ else
             box.innerHTML = `
                 <div class="selected-icon">✓</div>
                 <div>
-                    <strong>Đã chọn lịch khám</strong>
+                    <strong>${t('Đã chọn lịch khám')}</strong>
                     <span>${doctorText} - ${specialtyText}</span>
                     <span>${dateInput.value}, ${shiftText}</span>
                 </div>`;
         } else {
             box.classList.add('empty');
-            box.innerHTML = `<div class="selected-icon">✓</div><div><strong>Chưa chọn đủ thông tin</strong></div>`;
+            box.innerHTML = `<div class="selected-icon">✓</div><div><strong>${t('Chưa chọn đủ thông tin')}</strong></div>`;
         }
     }
 
@@ -360,8 +362,8 @@ else
 
 
     function requireLoginToBook() {
-        alert('Bạn cần đăng nhập bằng tài khoản bệnh nhân để đặt lịch khám.');
-        window.location.href = '/Account/Login?returnUrl=/';
+        showAppModal(t('Bạn cần đăng nhập bằng tài khoản bệnh nhân để đặt lịch khám.'), 'error');
+        setTimeout(function(){ window.location.href = '/Account/Login?returnUrl=/'; }, 900);
     }
 
     function setActiveHomeTab(active) {
@@ -394,27 +396,27 @@ else
     function validateQuickBooking() {
         if (!specialtySelect || !doctorSelect || !dateInput || !shiftSelect || !serviceSelect || !roomSelect) return false;
         if (!specialtySelect.value) {
-            showBookingMessage('Vui lòng chọn chuyên khoa.');
+            showBookingMessage(t('Vui lòng chọn chuyên khoa.'));
             return false;
         }
         if (!doctorSelect.value) {
-            showBookingMessage('Vui lòng chọn bác sĩ.');
+            showBookingMessage(t('Vui lòng chọn bác sĩ.'));
             return false;
         }
         if (!dateInput.value) {
-            showBookingMessage('Vui lòng chọn ngày khám.');
+            showBookingMessage(t('Vui lòng chọn ngày khám.'));
             return false;
         }
         if (!shiftSelect.value) {
-            showBookingMessage('Vui lòng chọn ca khám.');
+            showBookingMessage(t('Vui lòng chọn ca khám.'));
             return false;
         }
         if (!serviceSelect.value) {
-            showBookingMessage('Vui lòng chọn dịch vụ khám.');
+            showBookingMessage(t('Vui lòng chọn dịch vụ khám.'));
             return false;
         }
         if (!roomSelect.value) {
-            showBookingMessage('Vui lòng chọn phòng khám.');
+            showBookingMessage(t('Vui lòng chọn phòng khám.'));
             return false;
         }
         return true;
@@ -436,6 +438,7 @@ else
         hiddenDoctorId.value = doctorSelect.value;
         populateRooms();
         populateShifts();
+        if (typeof applyLanguage === 'function') applyLanguage(localStorage.getItem('medbookLang') || 'vi');
     });
 
     
@@ -443,10 +446,11 @@ else
         const selectedDate = dateInput.value;
         const today = dateInput.min;
         if (selectedDate && today && selectedDate < today) {
-            showAppModal('Không thể chọn ngày khám trong quá khứ. Hệ thống sẽ tự chuyển về ngày hiện tại.', 'error');
+            showAppModal(t('Không thể chọn ngày khám trong quá khứ. Hệ thống sẽ tự chuyển về ngày hiện tại.'), 'error');
             dateInput.value = today;
         }
         populateShifts();
+        if (typeof applyLanguage === 'function') applyLanguage(localStorage.getItem('medbookLang') || 'vi');
     });
 
     shiftSelect?.addEventListener('change', function () {
@@ -483,5 +487,6 @@ else
         populateDoctors();
         populateRooms();
         populateShifts();
+        if (typeof applyLanguage === 'function') applyLanguage(localStorage.getItem('medbookLang') || 'vi');
     });
 </script>

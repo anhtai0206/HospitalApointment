@@ -1,5 +1,6 @@
 @model List<AppointmentDetailDTO>
 @{
+    string StatusLabel(string status) => status switch { "Pending" => "Chờ xác nhận", "Confirmed" => "Đã xác nhận", "Cancelled" => "Đã hủy", "Completed" => "Đã khám", _ => status };
     ViewData["Title"] = "Lịch khám của bác sĩ";
 }
 
@@ -31,7 +32,7 @@
                     <td>@a.WorkDate.ToString("dd/MM/yyyy")</td>
                     <td>@a.StartTime.ToString(@"hh\:mm") - @a.EndTime.ToString(@"hh\:mm")</td>
                     <td>@(string.IsNullOrWhiteSpace(a.Reason) ? "Không ghi" : a.Reason)</td>
-                    <td><span class="status-pill @a.Status.ToLower()">@a.Status</span></td>
+                    <td><span class="status-pill @a.Status.ToLower()">@StatusLabel(a.Status)</span></td>
                     <td class="actions">
                         @if (a.Status == "Pending")
                         {

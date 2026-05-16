@@ -6958,11 +6958,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Administrator\\Downloads\\HospitalApointment\\HospitalAppointment\\HospitalAppointmentSystem.API\\HospitalAppointmentSystem.API.csproj",
+      "projectUniqueName": "C:\\Users\\Administrator\\Downloads\\HospitalAppointmentSystem_MultiProject\\HospitalAppointmentSystem.API\\HospitalAppointmentSystem.API.csproj",
       "projectName": "HospitalAppointmentSystem.API",
-      "projectPath": "C:\\Users\\Administrator\\Downloads\\HospitalApointment\\HospitalAppointment\\HospitalAppointmentSystem.API\\HospitalAppointmentSystem.API.csproj",
+      "projectPath": "C:\\Users\\Administrator\\Downloads\\HospitalAppointmentSystem_MultiProject\\HospitalAppointmentSystem.API\\HospitalAppointmentSystem.API.csproj",
       "packagesPath": "C:\\Users\\Administrator\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Administrator\\Downloads\\HospitalApointment\\HospitalAppointment\\HospitalAppointmentSystem.API\\obj\\",
+      "outputPath": "C:\\Users\\Administrator\\Downloads\\HospitalAppointmentSystem_MultiProject\\HospitalAppointmentSystem.API\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\Administrator\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -6980,14 +6980,14 @@
           "framework": "net8.0",
           "targetAlias": "net8.0",
           "projectReferences": {
-            "C:\\Users\\Administrator\\Downloads\\HospitalApointment\\HospitalAppointment\\HospitalAppointmentSystem.BLL\\HospitalAppointmentSystem.BLL.csproj": {
-              "projectPath": "C:\\Users\\Administrator\\Downloads\\HospitalApointment\\HospitalAppointment\\HospitalAppointmentSystem.BLL\\HospitalAppointmentSystem.BLL.csproj"
+            "C:\\Users\\Administrator\\Downloads\\HospitalAppointmentSystem_MultiProject\\HospitalAppointmentSystem.BLL\\HospitalAppointmentSystem.BLL.csproj": {
+              "projectPath": "C:\\Users\\Administrator\\Downloads\\HospitalAppointmentSystem_MultiProject\\HospitalAppointmentSystem.BLL\\HospitalAppointmentSystem.BLL.csproj"
             },
-            "C:\\Users\\Administrator\\Downloads\\HospitalApointment\\HospitalAppointment\\HospitalAppointmentSystem.DAL\\HospitalAppointmentSystem.DAL.csproj": {
-              "projectPath": "C:\\Users\\Administrator\\Downloads\\HospitalApointment\\HospitalAppointment\\HospitalAppointmentSystem.DAL\\HospitalAppointmentSystem.DAL.csproj"
+            "C:\\Users\\Administrator\\Downloads\\HospitalAppointmentSystem_MultiProject\\HospitalAppointmentSystem.DAL\\HospitalAppointmentSystem.DAL.csproj": {
+              "projectPath": "C:\\Users\\Administrator\\Downloads\\HospitalAppointmentSystem_MultiProject\\HospitalAppointmentSystem.DAL\\HospitalAppointmentSystem.DAL.csproj"
             },
-            "C:\\Users\\Administrator\\Downloads\\HospitalApointment\\HospitalAppointment\\HospitalAppointmentSystem.DTO\\HospitalAppointmentSystem.DTO.csproj": {
-              "projectPath": "C:\\Users\\Administrator\\Downloads\\HospitalApointment\\HospitalAppointment\\HospitalAppointmentSystem.DTO\\HospitalAppointmentSystem.DTO.csproj"
+            "C:\\Users\\Administrator\\Downloads\\HospitalAppointmentSystem_MultiProject\\HospitalAppointmentSystem.DTO\\HospitalAppointmentSystem.DTO.csproj": {
+              "projectPath": "C:\\Users\\Administrator\\Downloads\\HospitalAppointmentSystem_MultiProject\\HospitalAppointmentSystem.DTO\\HospitalAppointmentSystem.DTO.csproj"
             }
           }
         }

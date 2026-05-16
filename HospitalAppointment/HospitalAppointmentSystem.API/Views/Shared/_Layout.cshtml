@@ -41,7 +41,7 @@
                 <a href="/Account/ChangePassword">Đổi mật khẩu</a>
                 <div class="user-card">
                     <strong>@User.Identity!.Name</strong>
-                    <span>@User.FindFirstValue(ClaimTypes.Role)</span>
+                    <span>@(User.IsInRole("Admin") ? "Quản trị viên" : User.IsInRole("Doctor") ? "Bác sĩ" : "Bệnh nhân")</span>
                 </div>
                 <form asp-controller="Account" asp-action="Logout" method="post">
                     <button class="sidebar-action logout-button" type="submit">Đăng xuất</button>
@@ -53,6 +53,17 @@
             }
         </aside>
         <main class="content">
+            <div class="language-switcher" aria-label="Chọn ngôn ngữ">
+                <button type="button" id="languageToggle" class="language-toggle" onclick="toggleLanguageMenu()">
+                    <span id="languageFlag">VN</span>
+                    <span id="languageName">Tiếng Việt</span>
+                    <span class="language-caret">▾</span>
+                </button>
+                <div id="languageMenu" class="language-menu">
+                    <button type="button" onclick="setLanguage('vi')"><span>VN</span> Tiếng Việt</button>
+                    <button type="button" onclick="setLanguage('en')"><span>EN</span> English</button>
+                </div>
+            </div>
             @RenderBody()
 
             <footer class="site-footer" id="siteFooter">
@@ -157,9 +168,249 @@
             document.getElementById('appModal').style.display = 'none';
         }
 
+        const medbookTranslations = {
+            en: {
+                'Đặt lịch khám': 'Book appointment',
+                'Trang chủ': 'Home',
+                'Lịch của tôi': 'My appointments',
+                'Thông tin bệnh nhân': 'Patient profile',
+                'Lịch khám của bác sĩ': 'Doctor schedule',
+                'Quản lý lịch hẹn': 'Appointment management',
+                'Đổi mật khẩu': 'Change password',
+                'Đăng xuất': 'Log out',
+                'Đăng nhập': 'Sign in',
+                'Quản trị viên': 'Administrator',
+                'Bác sĩ': 'Doctor',
+                'Bệnh nhân': 'Patient',
+                'Đặt lịch khám bệnh trực tuyến': 'Online medical appointment booking',
+                'Chọn chuyên khoa, bác sĩ, ngày khám và khung giờ phù hợp chỉ trong vài bước.': 'Choose a specialty, doctor, date and time slot in just a few steps.',
+                'Đặt hẹn khám nhanh': 'Quick appointment',
+                'Chọn bác sĩ': 'Choose doctor',
+                'ĐẶT LỊCH NHANH': 'QUICK BOOKING',
+                'Thông tin đặt hẹn': 'Appointment information',
+                'Chuyên khoa': 'Specialty',
+                'Ngày khám': 'Appointment date',
+                'Giờ khám': 'Time slot',
+                'Dịch vụ': 'Service',
+                'Phòng khám': 'Clinic room',
+                'Chưa chọn đủ thông tin': 'Required information is incomplete',
+                'Lý do khám': 'Reason for visit',
+                'Đăng ký lịch khám': 'Book appointment',
+                'Thông tin cá nhân lưu tại hồ sơ bệnh nhân.': 'Personal information is saved in the patient profile.',
+                'Cập nhật hồ sơ': 'Update profile',
+                'ĐỘI NGŨ CHÚNG TÔI': 'OUR TEAM',
+                'Đội ngũ bác sĩ chất lượng': 'Qualified medical team',
+                'chuyên môn cao': 'high expertise',
+                'Tất cả': 'All',
+                'Tìm kiếm': 'Search',
+                'Đặt lịch hẹn': 'Book appointment',
+                'năm kinh nghiệm': 'years of experience',
+                'Mã lịch hẹn': 'Appointment ID',
+                'Mã lịch': 'ID',
+                'Bệnh nhân': 'Patient',
+                'Bệnh nhân Demo': 'Demo Patient',
+
+                'Thạc sĩ': "Master's degree",
+                'Chuyên khoa I': 'Specialist I',
+                'Bác sĩ nội tổng quát, tư vấn bệnh lý người lớn': 'General medicine doctor, adult disease consultation',
+                'Bác sĩ chuyên tim mạch và huyết áp': 'Cardiology and blood pressure specialist',
+                'Bác sĩ da liễu, điều trị mụn và viêm da': 'Dermatology doctor, acne and dermatitis treatment',
+                'Bác sĩ tai mũi họng': 'ENT doctor',
+                'Bác sĩ nhi khoa': 'Pediatric doctor',
+                'Bác sĩ răng hàm mặt': 'Dentist',
+                'Nội tổng quát': 'General medicine',
+                'Tim mạch': 'Cardiology',
+                'Da liễu': 'Dermatology',
+                'Tai mũi họng': 'ENT',
+                'Nhi khoa': 'Pediatrics',
+                'Răng hàm mặt': 'Dentistry',
+                'Dịch vụ': 'Service',
+                'Phòng khám': 'Clinic room',
+                'Ngày khám': 'Date',
+                'Giờ khám': 'Time',
+                'Lý do': 'Reason',
+                'Trạng thái': 'Status',
+                'Thao tác': 'Actions',
+                'Không ghi': 'No note',
+                'Hủy lịch': 'Cancel',
+                'Quản lý lịch hẹn khám bệnh': 'Medical appointment management',
+                'Trang này chỉ dành cho Admin. Bệnh nhân và bác sĩ sẽ không thấy mục này trên menu.': 'This page is only for administrators. Patients and doctors will not see this menu item.',
+                'Mã': 'ID',
+                'Ngày': 'Date',
+                'Giờ': 'Time',
+                'Xác nhận': 'Confirm',
+                'Đã khám': 'Completed',
+                'Hủy': 'Cancel',
+                'Bác sĩ chỉ thấy danh sách bệnh nhân đã đặt lịch với mình.': 'Doctors only see patients who booked with them.',
+                'Lý do khám': 'Reason',
+                'Mật khẩu cũ': 'Old password',
+                'Mật khẩu mới': 'New password',
+                'Xác nhận mật khẩu mới': 'Confirm new password',
+                'Cập nhật mật khẩu': 'Update password',
+                'Đăng nhập hệ thống': 'System sign in',
+                'Email': 'Email',
+                'Mật khẩu': 'Password',
+                'Ghi nhớ đăng nhập': 'Remember me',
+                'Đăng ký tài khoản': 'Create account',
+                'Quên mật khẩu?': 'Forgot password?',
+                'Đăng ký tài khoản bệnh nhân': 'Create patient account',
+                'Nhập lại mật khẩu': 'Confirm password',
+                'Tạo tài khoản': 'Create account',
+                'Đã có tài khoản? Đăng nhập': 'Already have an account? Sign in',
+                'Quên mật khẩu': 'Forgot password',
+                'Quay lại đăng nhập': 'Back to sign in',
+                'Thông tin hồ sơ bệnh nhân': 'Patient profile information',
+                'Đăng ký lịch khám': 'Book appointment',
+                'Họ tên': 'Full name',
+                'Số điện thoại': 'Phone number',
+                'Giới tính': 'Gender',
+                'Nam': 'Male',
+                'Nữ': 'Female',
+                'Ngày sinh': 'Date of birth',
+                'BHYT': 'Health insurance',
+                'Địa chỉ': 'Address',
+                'Ảnh 3x4': '3x4 photo',
+                'Lưu thông tin': 'Save information',
+                'Đăng nhập lại': 'Sign in again',
+                'Không thành công': 'Failed',
+                'Thành công': 'Success',
+                'Thông báo': 'Notification',
+                'Đóng': 'Close',
+                'Về chúng tôi': 'About us',
+                'Đội ngũ bác sĩ': 'Doctors',
+                'Hồ sơ bệnh nhân': 'Patient profile',
+                'Lịch khám của tôi': 'My appointments',
+                'Giờ làm việc': 'Working hours',
+                'Từ thứ 2 đến thứ 7': 'Monday to Saturday',
+                'Buổi sáng:': 'Morning:',
+                'Buổi chiều:': 'Afternoon:',
+                'Liên hệ': 'Contact',
+                'Theo dõi bản tin chúng tôi': 'Subscribe to our newsletter',
+                'Đăng ký': 'Subscribe',
+                'Địa chỉ:': 'Address:',
+                'Giấy phép hoạt động:': 'Operating license:',
+                'Chưa chọn lịch khám': 'No appointment selected',
+                'Đã chọn lịch khám': 'Appointment selected',
+                'Ca 1: 07:30 - 09:30': 'Shift 1: 07:30 - 09:30',
+                'Ca 2: 09:45 - 12:00': 'Shift 2: 09:45 - 12:00',
+                'Ca 3: 13:30 - 15:30': 'Shift 3: 13:30 - 15:30',
+                'Ca 4: 15:45 - 18:00': 'Shift 4: 15:45 - 18:00',
+                'Pending': 'Pending',
+                'Confirmed': 'Confirmed',
+                'Cancelled': 'Cancelled',
+                'Completed': 'Completed',
+                'Nội tổng quát': 'General medicine',
+                'Tim mạch': 'Cardiology',
+                'Da liễu': 'Dermatology',
+                'Tai mũi họng': 'ENT',
+                'Nhi khoa': 'Pediatrics',
+                'Răng hàm mặt': 'Dentistry',
+                'Khám dịch vụ': 'Service examination',
+                'Khám thường': 'Regular examination',
+                'Khám VIP - thương nhân': 'VIP business examination',
+                'tối đa 20 slot': 'maximum 20 slots',
+                'Bạn cần đăng nhập bằng tài khoản bệnh nhân để đặt lịch khám.': 'Please sign in with a patient account to book an appointment.',
+                'Không thể chọn ngày khám trong quá khứ. Hệ thống sẽ tự chuyển về ngày hiện tại.': 'You cannot select a past date. The system will switch back to today.',
+                'Vui lòng chọn chuyên khoa.': 'Please select a specialty.',
+                'Vui lòng chọn bác sĩ.': 'Please select a doctor.',
+                'Vui lòng chọn ngày khám.': 'Please select an appointment date.',
+                'Vui lòng chọn ca khám.': 'Please select a time slot.',
+                'Vui lòng chọn dịch vụ khám.': 'Please select a service.',
+                'Vui lòng chọn phòng khám.': 'Please select a clinic room.',
+                'Tái khám nội trú': 'Inpatient follow-up'
+            }
+        };
+
+        const medbookPlaceholders = {
+            en: {
+                'Nhập tên bác sĩ...': 'Enter doctor name...',
+                'Có thể để trống hoặc nhập triệu chứng...': 'Optional: enter symptoms...',
+                'Nhập email': 'Enter email',
+                'Nhập mật khẩu': 'Enter password',
+                'Nhập mật khẩu mới': 'Enter new password',
+                'Nhập lại mật khẩu mới': 'Confirm new password',
+                'Nhập lại mật khẩu': 'Confirm password',
+                'Nhập email của bạn': 'Enter your email',
+                '-- Chọn chuyên khoa --': '-- Select specialty --',
+                '-- Chọn bác sĩ --': '-- Select doctor --',
+                '-- Chọn giờ khám --': '-- Select time slot --',
+                '-- Chọn dịch vụ --': '-- Select service --',
+                '-- Chọn phòng khám --': '-- Select clinic room --'
+            }
+        };
+
+        function translateText(text) {
+            const lang = localStorage.getItem('medbookLang') || 'vi';
+            return lang === 'vi' ? text : (medbookTranslations.en[text] || text);
+        }
+        window.medbookT = translateText;
+
+        const translatedTextNodes = new WeakMap();
+        function applyLanguage(lang) {
+            localStorage.setItem('medbookLang', lang);
+            document.documentElement.lang = lang;
+            document.getElementById('languageFlag').textContent = lang === 'vi' ? 'VN' : 'EN';
+            document.getElementById('languageName').textContent = lang === 'vi' ? 'Tiếng Việt' : 'English';
+            document.getElementById('languageMenu')?.classList.remove('open');
+
+            const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
+                acceptNode(node) {
+                    const parent = node.parentElement;
+                    if (!parent) return NodeFilter.FILTER_REJECT;
+                    if (['SCRIPT', 'STYLE', 'TEXTAREA'].includes(parent.tagName)) return NodeFilter.FILTER_REJECT;
+                    if (!node.nodeValue || !node.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+                    return NodeFilter.FILTER_ACCEPT;
+                }
+            });
+            const nodes = [];
+            while (walker.nextNode()) nodes.push(walker.currentNode);
+            nodes.forEach(node => {
+                if (!translatedTextNodes.has(node)) translatedTextNodes.set(node, node.nodeValue);
+                const base = translatedTextNodes.get(node);
+                const leading = base.match(/^\s*/)[0];
+                const trailing = base.match(/\s*$/)[0];
+                const key = base.trim();
+                let translatedKey = medbookTranslations.en[key] || key;
+                if (lang !== 'vi') {
+                    const expMatch = key.match(/^(\d+)\s+năm kinh nghiệm$/i);
+                    if (expMatch) translatedKey = `${expMatch[1]} years of experience`;
+                    const doctorNameMatch = key.match(/^BS\.\s+(.+)$/i);
+                    if (doctorNameMatch) translatedKey = `Dr. ${doctorNameMatch[1]}`;
+                }
+                node.nodeValue = lang === 'vi' ? base : leading + translatedKey + trailing;
+            });
+
+            document.querySelectorAll('input[placeholder], textarea[placeholder], select option').forEach(el => {
+                if (!el.dataset.baseText) el.dataset.baseText = el.placeholder || el.textContent || '';
+                const base = el.dataset.baseText;
+                const translated = lang === 'vi' ? base : (medbookPlaceholders.en[base] || medbookTranslations.en[base] || base);
+                if ('placeholder' in el && el.placeholder) el.placeholder = translated;
+                else el.textContent = translated;
+            });
+            document.querySelectorAll('[title], [aria-label]').forEach(el => {
+                if (el.title) {
+                    if (!el.dataset.baseTitle) el.dataset.baseTitle = el.title;
+                    el.title = lang === 'vi' ? el.dataset.baseTitle : (medbookTranslations.en[el.dataset.baseTitle] || el.dataset.baseTitle);
+                }
+                const aria = el.getAttribute('aria-label');
+                if (aria) {
+                    if (!el.dataset.baseAria) el.dataset.baseAria = aria;
+                    el.setAttribute('aria-label', lang === 'vi' ? el.dataset.baseAria : (medbookTranslations.en[el.dataset.baseAria] || el.dataset.baseAria));
+                }
+            });
+        }
+
+        function setLanguage(lang) { applyLanguage(lang); }
+        function toggleLanguageMenu() { document.getElementById('languageMenu')?.classList.toggle('open'); }
+        document.addEventListener('click', function(e) {
+            const box = document.querySelector('.language-switcher');
+            if (box && !box.contains(e.target)) document.getElementById('languageMenu')?.classList.remove('open');
+        });
+
         document.addEventListener('DOMContentLoaded', function () {
             if (window.appTempSuccess) showAppModal(window.appTempSuccess, 'success');
             if (window.appTempError) showAppModal(window.appTempError, 'error');
+            applyLanguage(localStorage.getItem('medbookLang') || 'vi');
         });
     </script>
 </body>
