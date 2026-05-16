@@ -108,3 +108,18 @@ Quy trình đặt lịch mới:
 5. Chọn dịch vụ, phòng khám và nhập lý do khám nếu có.
 
 Database đã được cập nhật để mỗi bác sĩ có 4 ca/ngày, mỗi ca tối đa 20 slot khám.
+
+## Bản Fix cuối: giao diện, lịch hẹn, avatar bác sĩ
+
+Các điểm đã chỉnh:
+- Nút con mắt hiện/ẩn mật khẩu hoạt động đồng bộ ở đăng nhập, đăng ký, quên mật khẩu và đổi mật khẩu.
+- Danh sách bác sĩ dùng avatar mặc định riêng cho bác sĩ; có thêm cột `Doctors.PhotoUrl` để sau này có thể cập nhật ảnh bác sĩ.
+- Tìm kiếm bác sĩ tự lọc theo tên ngay khi nhập, vẫn giữ nút Tìm kiếm.
+- Chọn ngày khám trong quá khứ sẽ hiện popup cảnh báo và tự chuyển về ngày hiện tại.
+- Bác sĩ có thêm nút Xác nhận lịch hẹn trước khi cập nhật Đã khám.
+- Sửa lỗi hủy lịch hẹn ở trang Admin.
+- Cookie đăng nhập đổi sang `MedBook.Auth.v2`, chỉ lưu lâu khi tích Ghi nhớ đăng nhập.
+- Cho phép bệnh nhân đặt nhiều lịch với cùng một bác sĩ miễn là lịch còn slot và hợp lệ.
+- Lý do khám được phép để trống; khi trống sẽ hiển thị “Không ghi”, không còn lỗi `SqlNullValueException`.
+
+Lưu ý: bản này có thêm cột `Doctors.PhotoUrl`, nên nếu database cũ chưa có cột này, hãy chạy lại 3 file SQL trong thư mục `HospitalAppointmentSystem.API/Database` theo thứ tự.

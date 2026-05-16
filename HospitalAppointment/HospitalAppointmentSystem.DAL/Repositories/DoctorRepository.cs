@@ -29,9 +29,10 @@ public class DoctorRepository : IDoctorRepository
                 Phone = d.User.Phone,
                 SpecialtyId = d.SpecialtyId,
                 SpecialtyName = d.Specialty!.SpecialtyName,
-                Qualification = d.Qualification,
+                Qualification = d.Qualification ?? string.Empty,
                 ExperienceYears = d.ExperienceYears,
-                Description = d.Description
+                Description = d.Description ?? string.Empty,
+                PhotoUrl = d.PhotoUrl ?? string.Empty
             })
             .ToListAsync();
     }
@@ -50,9 +51,10 @@ public class DoctorRepository : IDoctorRepository
                 Phone = d.User.Phone,
                 SpecialtyId = d.SpecialtyId,
                 SpecialtyName = d.Specialty!.SpecialtyName,
-                Qualification = d.Qualification,
+                Qualification = d.Qualification ?? string.Empty,
                 ExperienceYears = d.ExperienceYears,
-                Description = d.Description
+                Description = d.Description ?? string.Empty,
+                PhotoUrl = d.PhotoUrl ?? string.Empty
             })
             .FirstOrDefaultAsync();
     }

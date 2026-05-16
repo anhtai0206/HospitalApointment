@@ -63,7 +63,7 @@ public class AppointmentRepository : IAppointmentRepository
             WorkDate = a.DoctorSchedule!.WorkDate,
             StartTime = a.DoctorSchedule.StartTime,
             EndTime = a.DoctorSchedule.EndTime,
-            Reason = a.Reason,
+            Reason = a.Reason ?? string.Empty,
             Status = a.Status,
             CreatedAt = a.CreatedAt
         });
@@ -82,7 +82,8 @@ public class AppointmentRepository : IAppointmentRepository
 
             cmd.Parameters.AddWithValue("@PatientId", dto.PatientId);
             cmd.Parameters.AddWithValue("@DoctorId", dto.DoctorId);
-            cmd.Parameters.AddWithValue("@ScheduleId", dto.ScheduleId);
+            cmd.Parameters.AddWithValue("@WorkDate", dto.WorkDate.Date);
+            cmd.Parameters.AddWithValue("@ShiftCode", dto.ShiftCode);
             cmd.Parameters.AddWithValue("@MedicalServiceId", dto.MedicalServiceId);
             cmd.Parameters.AddWithValue("@ClinicRoomId", dto.ClinicRoomId);
             cmd.Parameters.AddWithValue("@Reason", string.IsNullOrWhiteSpace(dto.Reason) ? DBNull.Value : dto.Reason.Trim());

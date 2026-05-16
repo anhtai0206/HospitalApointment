@@ -18,12 +18,14 @@
             <div class="auth-basic-input">
                 <span>🔒</span>
                 <input asp-for="Password" type="password" placeholder="Nhập mật khẩu" />
+                <button type="button" class="password-eye" onclick="togglePassword(this)" aria-label="Hiện mật khẩu">👁</button>
             </div>
 
             <label>Nhập lại mật khẩu</label>
             <div class="auth-basic-input">
                 <span>🔒</span>
                 <input asp-for="ConfirmPassword" type="password" placeholder="Nhập lại mật khẩu" />
+                <button type="button" class="password-eye" onclick="togglePassword(this)" aria-label="Hiện mật khẩu">👁</button>
             </div>
 
             <button class="auth-green-button" type="submit">Tạo tài khoản</button>

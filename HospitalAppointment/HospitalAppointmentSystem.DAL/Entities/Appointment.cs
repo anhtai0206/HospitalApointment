@@ -11,7 +11,7 @@ public class Appointment
     public int ScheduleId { get; set; }
     public int MedicalServiceId { get; set; }
     public int ClinicRoomId { get; set; }
-    public string Reason { get; set; } = string.Empty;
+    public string? Reason { get; set; }
     public string Status { get; set; } = "Pending";
     public DateTime CreatedAt { get; set; }
 

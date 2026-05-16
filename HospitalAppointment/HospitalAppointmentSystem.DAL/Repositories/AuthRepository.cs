@@ -124,14 +124,14 @@ public class AuthRepository : IAuthRepository
             {
                 PatientId = p.PatientId,
                 UserId = p.UserId,
-                FullName = p.User!.FullName,
-                Email = p.User.Email,
-                Phone = p.User.Phone,
-                Gender = p.Gender,
+                FullName = p.User!.FullName ?? string.Empty,
+                Email = p.User.Email ?? string.Empty,
+                Phone = p.User.Phone ?? string.Empty,
+                Gender = p.Gender ?? string.Empty,
                 DateOfBirth = p.DateOfBirth,
-                Address = p.Address,
-                HealthInsuranceNo = p.HealthInsuranceNo,
-                PhotoUrl = p.PhotoUrl
+                Address = p.Address ?? string.Empty,
+                HealthInsuranceNo = p.HealthInsuranceNo ?? string.Empty,
+                PhotoUrl = p.PhotoUrl ?? string.Empty
             })
             .FirstOrDefaultAsync();
     }

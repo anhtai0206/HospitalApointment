@@ -79,12 +79,12 @@
 
                         <div class="form-row-new">
                             <label>Ngày khám</label>
-                            <input id="bookDate" class="form-control" type="date" value="@today" min="@today" />
+                            <input id="bookDate" name="WorkDate" class="form-control" type="date" value="@today" min="@today" />
                         </div>
 
                         <div class="form-row-new">
                             <label>Giờ khám</label>
-                            <select id="bookShift" class="form-control" disabled>
+                            <select id="bookShift" name="ShiftCode" class="form-control" disabled>
                                 <option value="">-- Chọn giờ khám --</option>
                             </select>
                         </div>
@@ -156,8 +156,8 @@ else
     </div>
 
     <form method="get" asp-controller="Home" asp-action="Index" class="doctor-search-bar">
-        <input name="doctorName" value="@doctorName" placeholder="Nhập tên bác sĩ..." />
-        <select name="specialtyId">
+        <input id="doctorSearchInput" name="doctorName" value="@doctorName" placeholder="Nhập tên bác sĩ..." autocomplete="off" />
+        <select id="doctorSearchSpecialty" name="specialtyId">
             <option value="">Tất cả</option>
             @foreach (var s in specialties)
             {
@@ -177,14 +177,18 @@ else
     <div class="doctor-card-grid">
         @foreach (var d in doctors)
         {
-            var nameParts = d.FullName.Replace("BS.", "").Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries);
-            var initials = nameParts.Length > 0 ? nameParts[^1].Substring(0, 1).ToUpper() : "BS";
-            <article class="doctor-card-new" data-doctor-id="@d.DoctorId" data-specialty-id="@d.SpecialtyId">
+            <article class="doctor-card-new" data-doctor-id="@d.DoctorId" data-specialty-id="@d.SpecialtyId" data-doctor-name="@d.FullName.ToLower()">
                 <div class="doctor-image-panel">
-                    <div class="doctor-portrait-placeholder">
-                        <span>@initials</span>
-                        <small>MEDBOOK</small>
-                    </div>
+                    @if (!string.IsNullOrWhiteSpace(d.PhotoUrl))
+                    {
+                        <img class="doctor-photo" src="@d.PhotoUrl" alt="@d.FullName" />
+                    }
+                    else
+                    {
+                        <div class="doctor-default-avatar" title="Ảnh bác sĩ mặc định">
+                            <span>👨‍⚕️</span>
+                        </div>
+                    }
                     @if (User.Identity?.IsAuthenticated == true && User.IsInRole("Patient"))
                     {
                         <button type="button" class="doctor-book-btn" onclick="chooseDoctorFromCard(@d.SpecialtyId, @d.DoctorId)">📅 Đặt lịch hẹn</button>
@@ -197,7 +201,8 @@ else
                 <div class="doctor-info-panel">
                     <h3>@d.FullName.ToUpper()</h3>
                     <p><span>🎓</span> @d.Qualification</p>
-                    <p><span>🏥</span> @d.Description<br /><strong>@d.ExperienceYears năm kinh nghiệm</strong></p>
+                    <p><span>🏥</span> @d.Description</p>
+                    <p><span>⭐</span> @d.ExperienceYears năm kinh nghiệm</p>
                     <p><span>🩺</span> @d.SpecialtyName</p>
                 </div>
             </article>
@@ -207,14 +212,13 @@ else
 
 <script>
     const allDoctors = @Html.Raw(JsonSerializer.Serialize(allDoctors, jsonOptions));
-    const allSchedules = @Html.Raw(JsonSerializer.Serialize(schedules, jsonOptions));
     const allRooms = @Html.Raw(JsonSerializer.Serialize(rooms, jsonOptions));
 
     const shifts = [
-        { label: 'Ca 1: 07:30 - 09:30', start: '07:30:00', end: '09:30:00' },
-        { label: 'Ca 2: 09:45 - 12:00', start: '09:45:00', end: '12:00:00' },
-        { label: 'Ca 3: 13:30 - 15:30', start: '13:30:00', end: '15:30:00' },
-        { label: 'Ca 4: 15:45 - 18:00', start: '15:45:00', end: '18:00:00' }
+        { code: 'CA1', label: 'Ca 1: 07:30 - 09:30', start: '07:30:00', end: '09:30:00' },
+        { code: 'CA2', label: 'Ca 2: 09:45 - 12:00', start: '09:45:00', end: '12:00:00' },
+        { code: 'CA3', label: 'Ca 3: 13:30 - 15:30', start: '13:30:00', end: '15:30:00' },
+        { code: 'CA4', label: 'Ca 4: 15:45 - 18:00', start: '15:45:00', end: '18:00:00' }
     ];
 
     const specialtySelect = document.getElementById('bookSpecialtyId');
@@ -310,23 +314,13 @@ else
 
         if (!(doctorId && dateValue)) return;
 
+        // Không dùng lịch tạo sẵn. Ca khám sẽ được tạo trong database khi bệnh nhân bấm đăng ký.
         shifts.forEach(shift => {
-            const matched = allSchedules.find(s =>
-                String(s.DoctorId) === String(doctorId) &&
-                formatDateFromSchedule(s.WorkDate) === dateValue &&
-                normalizeTime(s.StartTime) === shift.start &&
-                normalizeTime(s.EndTime) === shift.end &&
-                s.AvailableSlots > 0
-            );
-
             const option = document.createElement('option');
-            option.value = matched ? matched.ScheduleId : '';
-            option.textContent = matched ? `${shift.label} (${matched.AvailableSlots} slot)` : `${shift.label} (hết lịch)`;
-            option.disabled = !matched;
-            if (matched) {
-                option.dataset.scheduleId = matched.ScheduleId;
-                option.dataset.availableSlots = matched.AvailableSlots;
-            }
+            option.value = shift.code;
+            option.textContent = `${shift.label} (tối đa 20 slot)`;
+            option.dataset.start = shift.start;
+            option.dataset.end = shift.end;
             shiftSelect.appendChild(option);
         });
     }
@@ -338,7 +332,7 @@ else
         const doctorText = doctorSelect.options[doctorSelect.selectedIndex]?.text || '';
         const shiftText = shiftSelect.options[shiftSelect.selectedIndex]?.text || '';
 
-        if (specialtySelect.value && doctorSelect.value && dateInput.value && hiddenScheduleId.value) {
+        if (specialtySelect.value && doctorSelect.value && dateInput.value && shiftSelect.value) {
             box.classList.remove('empty');
             box.innerHTML = `
                 <div class="selected-icon">✓</div>
@@ -393,6 +387,7 @@ else
         if (booking && !booking.hasAttribute('hidden')) booking.style.display = 'none';
         if (doctors) doctors.style.display = 'block';
         setActiveHomeTab('doctors');
+        liveFilterDoctors();
         doctors?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
@@ -410,8 +405,8 @@ else
             showBookingMessage('Vui lòng chọn ngày khám.');
             return false;
         }
-        if (!hiddenScheduleId.value) {
-            showBookingMessage('Vui lòng chọn khung giờ còn slot khám.');
+        if (!shiftSelect.value) {
+            showBookingMessage('Vui lòng chọn ca khám.');
             return false;
         }
         if (!serviceSelect.value) {
@@ -443,12 +438,37 @@ else
         populateShifts();
     });
 
-    dateInput?.addEventListener('change', populateShifts);
+    
+    dateInput?.addEventListener('change', function () {
+        const selectedDate = dateInput.value;
+        const today = dateInput.min;
+        if (selectedDate && today && selectedDate < today) {
+            showAppModal('Không thể chọn ngày khám trong quá khứ. Hệ thống sẽ tự chuyển về ngày hiện tại.', 'error');
+            dateInput.value = today;
+        }
+        populateShifts();
+    });
 
     shiftSelect?.addEventListener('change', function () {
-        hiddenScheduleId.value = shiftSelect.value || '';
+        hiddenScheduleId.value = '';
         updateSelectedBox();
     });
+
+
+    function liveFilterDoctors() {
+        const keyword = (document.getElementById('doctorSearchInput')?.value || '').trim().toLowerCase();
+        const specialtyId = document.getElementById('doctorSearchSpecialty')?.value || '';
+        document.querySelectorAll('.doctor-card-new').forEach(card => {
+            const name = card.dataset.doctorName || '';
+            const cardSpecialty = card.dataset.specialtyId || '';
+            const matchName = !keyword || name.includes(keyword);
+            const matchSpecialty = !specialtyId || cardSpecialty === specialtyId;
+            card.style.display = (matchName && matchSpecialty) ? '' : 'none';
+        });
+    }
+
+    document.getElementById('doctorSearchInput')?.addEventListener('input', liveFilterDoctors);
+    document.getElementById('doctorSearchSpecialty')?.addEventListener('change', liveFilterDoctors);
 
     document.addEventListener('DOMContentLoaded', function () {
         const booking = document.getElementById('bookingSection');
@@ -456,6 +476,7 @@ else
         if (booking && !booking.hasAttribute('hidden')) booking.style.display = 'none';
         if (doctors) doctors.style.display = 'block';
         setActiveHomeTab('doctors');
+        liveFilterDoctors();
 
         if (!specialtySelect) return;
         setTodayLocal();

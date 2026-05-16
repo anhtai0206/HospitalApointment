@@ -15,9 +15,11 @@ builder.Services.AddScoped<ICloudinaryPhotoService, CloudinaryPhotoService>();
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
+        options.Cookie.Name = "MedBook.Auth.v2";
         options.LoginPath = "/Account/Login";
         options.AccessDeniedPath = "/Account/AccessDenied";
         options.ExpireTimeSpan = TimeSpan.FromHours(2);
+        options.SlidingExpiration = false;
     });
 
 builder.Services.AddDbContext<HospitalDbContext>(options =>

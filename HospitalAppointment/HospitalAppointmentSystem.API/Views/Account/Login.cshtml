@@ -20,6 +20,7 @@
             <div class="auth-basic-input">
                 <span>🔒</span>
                 <input asp-for="Password" type="password" placeholder="Nhập mật khẩu" />
+                <button type="button" class="password-eye" onclick="togglePassword(this)" aria-label="Hiện mật khẩu">👁</button>
             </div>
 
             <label class="auth-remember">

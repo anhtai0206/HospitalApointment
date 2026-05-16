@@ -12,8 +12,14 @@ public class AppointmentDTO
     [Required]
     public int DoctorId { get; set; }
 
-    [Required]
+    // ScheduleId sẽ được tạo/tìm tự động ở SQL Server khi bệnh nhân đăng ký theo ngày và ca khám.
     public int ScheduleId { get; set; }
+
+    [Required]
+    public DateTime WorkDate { get; set; }
+
+    [Required]
+    public string ShiftCode { get; set; } = string.Empty;
 
     [Required]
     public int MedicalServiceId { get; set; }
@@ -21,7 +27,7 @@ public class AppointmentDTO
     [Required]
     public int ClinicRoomId { get; set; }
 
-    public string Reason { get; set; } = string.Empty;
+    public string? Reason { get; set; }
 
     public string Status { get; set; } = "Pending";
     public DateTime CreatedAt { get; set; }

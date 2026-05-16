@@ -33,7 +33,8 @@ CREATE TABLE Doctors (
     SpecialtyId INT NOT NULL FOREIGN KEY REFERENCES Specialties(SpecialtyId),
     Qualification NVARCHAR(100),
     ExperienceYears INT NOT NULL DEFAULT 0,
-    Description NVARCHAR(255)
+    Description NVARCHAR(255),
+    PhotoUrl NVARCHAR(500)
 );
 
 CREATE TABLE Patients (
@@ -56,6 +57,9 @@ CREATE TABLE DoctorSchedules (
     CurrentPatients INT NOT NULL DEFAULT 0,
     Status NVARCHAR(30) NOT NULL DEFAULT N'Available'
 );
+
+CREATE UNIQUE INDEX UX_DoctorSchedules_Doctor_Date_Shift
+ON DoctorSchedules(DoctorId, WorkDate, StartTime, EndTime);
 
 CREATE TABLE MedicalServices (
     MedicalServiceId INT IDENTITY PRIMARY KEY,

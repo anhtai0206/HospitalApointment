@@ -31,7 +31,7 @@
                     <td>@a.ClinicRoomName</td>
                     <td>@a.WorkDate.ToString("dd/MM/yyyy")</td>
                     <td>@a.StartTime.ToString(@"hh\:mm") - @a.EndTime.ToString(@"hh\:mm")</td>
-                    <td>@a.Reason</td>
+                    <td>@(string.IsNullOrWhiteSpace(a.Reason) ? "Không ghi" : a.Reason)</td>
                     <td><span class="status-pill @a.Status.ToLower()">@a.Status</span></td>
                     <td class="actions">
                         @if (a.Status != "Cancelled" && a.Status != "Completed")

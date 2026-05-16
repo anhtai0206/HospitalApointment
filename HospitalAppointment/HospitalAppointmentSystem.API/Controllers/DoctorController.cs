@@ -32,6 +32,26 @@ public class DoctorController : Controller
         return View(appointments);
     }
 
+
+    [Authorize(Roles = "Doctor")]
+    [HttpPost]
+    public async Task<IActionResult> Confirm(int id)
+    {
+        var doctorIdClaim = User.FindFirstValue("DoctorId");
+        if (string.IsNullOrWhiteSpace(doctorIdClaim)) return RedirectToAction("AccessDenied", "Account");
+
+        var appointments = await _appointmentService.GetByDoctorAsync(int.Parse(doctorIdClaim));
+        if (!appointments.Any(a => a.AppointmentId == id))
+        {
+            TempData["Error"] = "Bạn không có quyền xác nhận lịch hẹn này";
+            return RedirectToAction(nameof(MySchedule));
+        }
+
+        var result = await _appointmentService.ConfirmAsync(id);
+        TempData[result.Success ? "Success" : "Error"] = result.Message;
+        return RedirectToAction(nameof(MySchedule));
+    }
+
     [Authorize(Roles = "Doctor")]
     [HttpPost]
     public async Task<IActionResult> Complete(int id)

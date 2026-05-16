@@ -11,4 +11,5 @@ public class DoctorDTO
     public string Qualification { get; set; } = string.Empty;
     public int ExperienceYears { get; set; }
     public string Description { get; set; } = string.Empty;
+    public string PhotoUrl { get; set; } = string.Empty;
 }

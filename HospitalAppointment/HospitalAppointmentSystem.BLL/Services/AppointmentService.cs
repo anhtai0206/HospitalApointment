@@ -22,14 +22,18 @@ public class AppointmentService : IAppointmentService
     {
         if (dto.PatientId <= 0) return ApiResponse.Fail("Thiếu mã bệnh nhân");
         if (dto.DoctorId <= 0) return ApiResponse.Fail("Vui lòng chọn bác sĩ");
-        if (dto.ScheduleId <= 0) return ApiResponse.Fail("Vui lòng chọn lịch khám");
+        if (dto.WorkDate == default) return ApiResponse.Fail("Vui lòng chọn ngày khám");
+        if (dto.WorkDate.Date < DateTime.Today) return ApiResponse.Fail("Không thể đặt lịch trong quá khứ");
+        if (string.IsNullOrWhiteSpace(dto.ShiftCode)) return ApiResponse.Fail("Vui lòng chọn ca khám");
+
+        var validShifts = new[] { "CA1", "CA2", "CA3", "CA4" };
+        if (!validShifts.Contains(dto.ShiftCode.Trim().ToUpper()))
+            return ApiResponse.Fail("Ca khám không hợp lệ");
+
+        dto.ShiftCode = dto.ShiftCode.Trim().ToUpper();
+
         if (dto.MedicalServiceId <= 0) return ApiResponse.Fail("Vui lòng chọn dịch vụ khám");
         if (dto.ClinicRoomId <= 0) return ApiResponse.Fail("Vui lòng chọn phòng khám");
-        var schedule = await _scheduleRepository.GetByIdAsync(dto.ScheduleId);
-        if (schedule == null) return ApiResponse.Fail("Lịch khám không tồn tại");
-        if (schedule.WorkDate.Date < DateTime.Today) return ApiResponse.Fail("Không thể đặt lịch trong quá khứ");
-        if (schedule.AvailableSlots <= 0) return ApiResponse.Fail("Lịch khám đã đầy");
-        if (schedule.DoctorId != dto.DoctorId) return ApiResponse.Fail("Bác sĩ không khớp với lịch khám đã chọn");
 
         return await _appointmentRepository.BookAppointmentAsync(dto);
     }

@@ -11,6 +11,7 @@ public class Doctor
     public string Qualification { get; set; } = string.Empty;
     public int ExperienceYears { get; set; }
     public string Description { get; set; } = string.Empty;
+    public string? PhotoUrl { get; set; }
 
     public User? User { get; set; }
     public Specialty? Specialty { get; set; }

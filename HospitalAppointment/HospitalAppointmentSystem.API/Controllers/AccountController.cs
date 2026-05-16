@@ -51,7 +51,12 @@ public class AccountController : Controller
         var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
         await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme,
             new ClaimsPrincipal(identity),
-            new AuthenticationProperties { IsPersistent = dto.RememberMe });
+            new AuthenticationProperties
+            {
+                IsPersistent = dto.RememberMe,
+                ExpiresUtc = dto.RememberMe ? DateTimeOffset.UtcNow.AddDays(7) : null,
+                AllowRefresh = dto.RememberMe
+            });
 
         if (!string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl))
             return Redirect(returnUrl);
@@ -60,7 +65,7 @@ public class AccountController : Controller
         {
             "Admin" => RedirectToAction("Appointments", "Admin"),
             "Doctor" => RedirectToAction("MySchedule", "Doctor"),
-            _ => RedirectToAction("Create", "Appointment")
+            _ => RedirectToAction("Index", "Home")
         };
     }
 

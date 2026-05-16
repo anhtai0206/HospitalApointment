@@ -51,64 +51,19 @@ INSERT INTO Users(FullName, Email, PasswordHash, Phone, Role) VALUES
 (N'BS. Võ Quốc Khánh', 'khanh@clinic.vn', 'A12345@', '0901000006', 'Doctor'),
 (N'Bệnh nhân Demo', 'patient.demo@clinic.vn', 'A12345@', '0911111111', 'Patient');
 
-INSERT INTO Doctors(UserId, SpecialtyId, Qualification, ExperienceYears, Description) VALUES
-(2, 1, N'Thạc sĩ', 8, N'Bác sĩ nội tổng quát, tư vấn bệnh lý người lớn'),
-(3, 2, N'Chuyên khoa I', 10, N'Bác sĩ chuyên tim mạch và huyết áp'),
-(4, 3, N'Bác sĩ', 6, N'Bác sĩ da liễu, điều trị mụn và viêm da'),
-(5, 4, N'Chuyên khoa I', 9, N'Bác sĩ tai mũi họng'),
-(6, 5, N'Thạc sĩ', 12, N'Bác sĩ nhi khoa'),
-(7, 6, N'Bác sĩ', 7, N'Bác sĩ răng hàm mặt');
+INSERT INTO Doctors(UserId, SpecialtyId, Qualification, ExperienceYears, Description, PhotoUrl) VALUES
+(2, 1, N'Thạc sĩ', 8, N'Bác sĩ nội tổng quát, tư vấn bệnh lý người lớn', NULL),
+(3, 2, N'Chuyên khoa I', 10, N'Bác sĩ chuyên tim mạch và huyết áp', NULL),
+(4, 3, N'Bác sĩ', 6, N'Bác sĩ da liễu, điều trị mụn và viêm da', NULL),
+(5, 4, N'Chuyên khoa I', 9, N'Bác sĩ tai mũi họng', NULL),
+(6, 5, N'Thạc sĩ', 12, N'Bác sĩ nhi khoa', NULL),
+(7, 6, N'Bác sĩ', 7, N'Bác sĩ răng hàm mặt', NULL);
 
 INSERT INTO Patients(UserId, Gender, DateOfBirth, Address, HealthInsuranceNo, PhotoUrl) VALUES
 (8, N'Nam', '2005-12-27', N'TP.HCM', 'BHYT005', N'');
 
 
--- Tạo lịch làm việc theo 4 ca cố định, mỗi ca tối đa 20 slot khám.
--- Ca 1: 07:30 - 09:30
--- Ca 2: 09:45 - 12:00
--- Ca 3: 13:30 - 15:30
--- Ca 4: 15:45 - 18:00
-DECLARE @Today DATE = CAST(GETDATE() AS DATE);
-DECLARE @DoctorId INT = 1;
-DECLARE @DayOffset INT;
-
-WHILE @DoctorId <= 6
-BEGIN
-    SET @DayOffset = 0;
-    WHILE @DayOffset <= 14
-    BEGIN
-        INSERT INTO DoctorSchedules(DoctorId, WorkDate, StartTime, EndTime, MaxPatients, CurrentPatients, Status) VALUES
-        (@DoctorId, DATEADD(DAY, @DayOffset, @Today), '07:30', '09:30', 20, 0, N'Available'),
-        (@DoctorId, DATEADD(DAY, @DayOffset, @Today), '09:45', '12:00', 20, 0, N'Available'),
-        (@DoctorId, DATEADD(DAY, @DayOffset, @Today), '13:30', '15:30', 20, 0, N'Available'),
-        (@DoctorId, DATEADD(DAY, @DayOffset, @Today), '15:45', '18:00', 20, 0, N'Available');
-
-        SET @DayOffset = @DayOffset + 1;
-    END
-    SET @DoctorId = @DoctorId + 1;
-END
-
--- Lịch hẹn mẫu cho tài khoản bệnh nhân demo.
--- Lấy ScheduleId động để không phụ thuộc ID tự tăng.
-DECLARE @Schedule1 INT = (
-    SELECT TOP 1 ScheduleId FROM DoctorSchedules
-    WHERE DoctorId = 1 AND WorkDate = @Today AND StartTime = '07:30'
-    ORDER BY ScheduleId
-);
-DECLARE @Schedule2 INT = (
-    SELECT TOP 1 ScheduleId FROM DoctorSchedules
-    WHERE DoctorId = 2 AND WorkDate = DATEADD(DAY, 1, @Today) AND StartTime = '09:45'
-    ORDER BY ScheduleId
-);
-DECLARE @Schedule3 INT = (
-    SELECT TOP 1 ScheduleId FROM DoctorSchedules
-    WHERE DoctorId = 3 AND WorkDate = DATEADD(DAY, 2, @Today) AND StartTime = '13:30'
-    ORDER BY ScheduleId
-);
-
-EXEC sp_BookAppointment 1, 1, @Schedule1, 2, 1, N'Đau đầu, mệt mỏi';
-EXEC sp_BookAppointment 1, 2, @Schedule2, 1, 6, N'Tư vấn huyết áp';
-EXEC sp_BookAppointment 1, 3, @Schedule3, 1, 11, N'Nổi mẩn đỏ trên da';
-
-UPDATE Appointments SET Status = N'Confirmed' WHERE AppointmentId = 1;
+-- Không tạo sẵn lịch khám cho cả tháng.
+-- Khi bệnh nhân đăng ký, Stored Procedure sp_BookAppointment sẽ tự tìm hoặc tạo lịch mới
+-- theo bác sĩ + ngày khám + ca khám. Mỗi ca tối đa 20 slot.
 GO
