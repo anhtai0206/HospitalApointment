@@ -14,6 +14,7 @@ SELECT
     ds.StartTime,
     ds.EndTime,
     ISNULL(a.Reason, N'') AS Reason,
+    ISNULL(a.CancelReason, N'') AS CancelReason,
     a.Status,
     a.CreatedAt
 FROM Appointments a
@@ -55,27 +56,17 @@ BEGIN
     DECLARE @ScheduleId INT;
     DECLARE @StartTime TIME;
     DECLARE @EndTime TIME;
-    DECLARE @MaxPatients INT = 20;
+    DECLARE @MaxPatients INT = 999999; -- không giới hạn slot, chỉ lưu để tương thích cấu trúc bảng
 
-    IF @ShiftCode = 'CA1'
+    IF @ShiftCode = 'MORNING'
     BEGIN
         SET @StartTime = '07:30';
-        SET @EndTime = '09:30';
+        SET @EndTime = '11:30';
     END
-    ELSE IF @ShiftCode = 'CA2'
-    BEGIN
-        SET @StartTime = '09:45';
-        SET @EndTime = '12:00';
-    END
-    ELSE IF @ShiftCode = 'CA3'
+    ELSE IF @ShiftCode = 'AFTERNOON'
     BEGIN
         SET @StartTime = '13:30';
-        SET @EndTime = '15:30';
-    END
-    ELSE IF @ShiftCode = 'CA4'
-    BEGIN
-        SET @StartTime = '15:45';
-        SET @EndTime = '18:00';
+        SET @EndTime = '17:30';
     END
     ELSE
     BEGIN
@@ -147,18 +138,18 @@ BEGIN
             SELECT 1
             FROM DoctorSchedules WITH (UPDLOCK, HOLDLOCK)
             WHERE ScheduleId = @ScheduleId
-              AND (Status = N'Cancelled' OR CurrentPatients >= MaxPatients)
+              AND Status = N'Cancelled'
         )
         BEGIN
-            RAISERROR(N'Ca khám đã đầy hoặc đã bị hủy.', 16, 1);
+            RAISERROR(N'Ca khám đã bị hủy.', 16, 1);
             ROLLBACK TRANSACTION;
             RETURN;
         END;
 
         -- Một bệnh nhân không được đặt trùng cùng một ngày và cùng một ca.
-        -- Ví dụ: đã đặt ngày 15 ca 1 thì không được đặt thêm ca 1 ngày 15 nữa,
-        -- nhưng vẫn được đặt ca 2, ca 3 hoặc ca 4 trong cùng ngày nếu còn slot.
-        -- Các bệnh nhân khác vẫn được đặt cùng bác sĩ, cùng ngày, cùng ca cho đến khi đủ 20 slot.
+        -- Ví dụ: đã đặt ngày 15 ca sáng thì không được đặt thêm ca sáng ngày 15 nữa,
+        -- nhưng vẫn được đặt ca chiều trong cùng ngày.
+        -- Các bệnh nhân khác vẫn được đặt cùng bác sĩ, cùng ngày, cùng ca; hệ thống không giới hạn slot.
         IF EXISTS (
             SELECT 1
             FROM Appointments a WITH (UPDLOCK, HOLDLOCK)
@@ -180,7 +171,7 @@ BEGIN
 
         UPDATE DoctorSchedules
         SET CurrentPatients = CurrentPatients + 1,
-            Status = CASE WHEN CurrentPatients + 1 >= MaxPatients THEN N'Full' ELSE N'Available' END
+            Status = N'Available'
         WHERE ScheduleId = @ScheduleId;
 
         COMMIT TRANSACTION;
@@ -189,23 +180,6 @@ BEGIN
         IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;
         THROW;
     END CATCH
-END;
-GO
-
-CREATE TRIGGER trg_UpdateScheduleStatus
-ON DoctorSchedules
-AFTER UPDATE
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    UPDATE DoctorSchedules
-    SET Status = N'Full'
-    WHERE CurrentPatients >= MaxPatients;
-
-    UPDATE DoctorSchedules
-    SET Status = N'Available'
-    WHERE CurrentPatients < MaxPatients AND Status = N'Full';
 END;
 GO
 

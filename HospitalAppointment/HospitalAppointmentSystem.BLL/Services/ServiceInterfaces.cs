@@ -21,7 +21,7 @@ public interface IAppointmentService
     Task<List<AppointmentDetailDTO>> GetByDoctorAsync(int doctorId);
     Task<ApiResponse> ConfirmAsync(int id);
     Task<ApiResponse> CompleteAsync(int id);
-    Task<ApiResponse> CancelAsync(int id);
+    Task<ApiResponse> CancelAsync(int id, string? cancelReason = null);
 }
 
 public interface IScheduleService

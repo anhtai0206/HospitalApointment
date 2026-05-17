@@ -1,12 +1,10 @@
 @model List<AppointmentDetailDTO>
 @{
-    string StatusLabel(string status) => status switch { "Pending" => "Chờ xác nhận", "Confirmed" => "Đã xác nhận", "Cancelled" => "Đã hủy", "Completed" => "Đã khám", _ => status };
     ViewData["Title"] = "Lịch khám của bác sĩ";
 }
 
 <section class="schedule-list full">
     <h3>Lịch khám của bác sĩ</h3>
-    <p class="muted">Bác sĩ chỉ thấy danh sách bệnh nhân đã đặt lịch với mình.</p>
     <table>
         <thead>
             <tr>
@@ -32,15 +30,25 @@
                     <td>@a.WorkDate.ToString("dd/MM/yyyy")</td>
                     <td>@a.StartTime.ToString(@"hh\:mm") - @a.EndTime.ToString(@"hh\:mm")</td>
                     <td>@(string.IsNullOrWhiteSpace(a.Reason) ? "Không ghi" : a.Reason)</td>
-                    <td><span class="status-pill @a.Status.ToLower()">@StatusLabel(a.Status)</span></td>
+                    <td><span class="status-pill @a.Status.ToLower()">@a.Status</span></td>
                     <td class="actions">
                         @if (a.Status == "Pending")
                         {
                             <form asp-action="Confirm" method="post"><input type="hidden" name="id" value="@a.AppointmentId" /><button class="action-confirm">Xác nhận</button></form>
-                        }
-                        @if (a.Status != "Cancelled" && a.Status != "Completed")
-                        {
                             <form asp-action="Complete" method="post"><input type="hidden" name="id" value="@a.AppointmentId" /><button>Đã khám</button></form>
+                            <form asp-action="Cancel" method="post" onsubmit="return askCancelReason(this)">
+                                <input type="hidden" name="id" value="@a.AppointmentId" />
+                                <input type="hidden" name="cancelReason" />
+                                <button class="danger-button">Hủy</button>
+                            </form>
+                        }
+                        else if (a.Status == "Cancelled")
+                        {
+                            <span class="cancel-reason-text">@(string.IsNullOrWhiteSpace(a.CancelReason) ? "Đã hủy" : a.CancelReason)</span>
+                        }
+                        else
+                        {
+                            <span class="muted-action">--</span>
                         }
                     </td>
                 </tr>
@@ -48,3 +56,11 @@
         </tbody>
     </table>
 </section>
+<script>
+    function askCancelReason(form) {
+        const reason = prompt('Nhập lý do hủy lịch hẹn nếu có:');
+        if (reason === null) return false;
+        form.querySelector('input[name="cancelReason"]').value = reason || '';
+        return true;
+    }
+</script>

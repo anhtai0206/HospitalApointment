@@ -25,8 +25,8 @@ public class HospitalDbContext : DbContext
         modelBuilder.Entity<Specialty>().ToTable("Specialties");
         modelBuilder.Entity<Doctor>().ToTable("Doctors");
         modelBuilder.Entity<Patient>().ToTable("Patients");
-        modelBuilder.Entity<DoctorSchedule>().ToTable("DoctorSchedules");
-        modelBuilder.Entity<Appointment>().ToTable("Appointments");
+        modelBuilder.Entity<DoctorSchedule>().ToTable("DoctorSchedules", tb => tb.HasTrigger("trg_UpdateScheduleStatus"));
+        modelBuilder.Entity<Appointment>().ToTable("Appointments", tb => tb.HasTrigger("trg_LogAppointmentInsert"));
         modelBuilder.Entity<AppointmentLog>().ToTable("AppointmentLogs");
         modelBuilder.Entity<MedicalService>().ToTable("MedicalServices");
         modelBuilder.Entity<ClinicRoom>().ToTable("ClinicRooms");

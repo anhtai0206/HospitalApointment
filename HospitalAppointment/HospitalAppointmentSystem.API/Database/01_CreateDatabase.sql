@@ -83,6 +83,7 @@ CREATE TABLE Appointments (
     MedicalServiceId INT NOT NULL FOREIGN KEY REFERENCES MedicalServices(MedicalServiceId),
     ClinicRoomId INT NOT NULL FOREIGN KEY REFERENCES ClinicRooms(ClinicRoomId),
     Reason NVARCHAR(255),
+    CancelReason NVARCHAR(255),
     Status NVARCHAR(30) NOT NULL DEFAULT N'Pending',
     CreatedAt DATETIME NOT NULL DEFAULT GETDATE()
 );

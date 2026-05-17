@@ -101,13 +101,11 @@ Quy trình đặt lịch mới:
 2. Chọn bác sĩ thuộc chuyên khoa.
 3. Chọn ngày khám, mặc định là ngày hiện tại theo máy người dùng.
 4. Chọn 1 trong 4 ca khám:
-   - Ca 1: 07:30 - 09:30
-   - Ca 2: 09:45 - 12:00
-   - Ca 3: 13:30 - 15:30
-   - Ca 4: 15:45 - 18:00
+   - Ca sáng: 07:30 - 11:30
+   - Ca chiều: 13:30 - 17:30
 5. Chọn dịch vụ, phòng khám và nhập lý do khám nếu có.
 
-Database đã được cập nhật để mỗi bác sĩ có 4 ca/ngày, mỗi ca tối đa 20 slot khám.
+Database đã được cập nhật để không tạo sẵn lịch theo tháng; lịch được tự tạo khi bệnh nhân đăng ký, gồm 2 ca cố định và không giới hạn slot.
 
 ## Bản Fix cuối: giao diện, lịch hẹn, avatar bác sĩ
 

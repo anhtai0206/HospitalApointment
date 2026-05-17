@@ -52,7 +52,7 @@ public class AppointmentController : Controller
 
     [Authorize(Roles = "Patient")]
     [HttpPost]
-    public async Task<IActionResult> CancelMine(int id)
+    public async Task<IActionResult> CancelMine(int id, string? cancelReason)
     {
         var appointments = await _appointmentService.GetByPatientAsync(GetPatientId());
         if (!appointments.Any(a => a.AppointmentId == id))
@@ -61,7 +61,7 @@ public class AppointmentController : Controller
             return RedirectToAction(nameof(MyAppointments));
         }
 
-        var result = await _appointmentService.CancelAsync(id);
+        var result = await _appointmentService.CancelAsync(id, cancelReason);
         TempData[result.Success ? "Success" : "Error"] = result.Message;
         return RedirectToAction(nameof(MyAppointments));
     }

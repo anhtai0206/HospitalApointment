@@ -53,10 +53,10 @@ INSERT INTO Users(FullName, Email, PasswordHash, Phone, Role) VALUES
 
 INSERT INTO Doctors(UserId, SpecialtyId, Qualification, ExperienceYears, Description, PhotoUrl) VALUES
 (2, 1, N'Thạc sĩ', 8, N'Bác sĩ nội tổng quát, tư vấn bệnh lý người lớn', NULL),
-(3, 2, N'Chuyên khoa I', 10, N'Bác sĩ chuyên tim mạch và huyết áp', NULL),
+(3, 2, N'Chuyên khoa I', 10, N'Bác sĩ chuyên tim mạch và huyết áp', N'/images/default-female-doctor.png'),
 (4, 3, N'Bác sĩ', 6, N'Bác sĩ da liễu, điều trị mụn và viêm da', NULL),
 (5, 4, N'Chuyên khoa I', 9, N'Bác sĩ tai mũi họng', NULL),
-(6, 5, N'Thạc sĩ', 12, N'Bác sĩ nhi khoa', NULL),
+(6, 5, N'Thạc sĩ', 12, N'Bác sĩ nhi khoa', N'/images/default-female-doctor.png'),
 (7, 6, N'Bác sĩ', 7, N'Bác sĩ răng hàm mặt', NULL);
 
 INSERT INTO Patients(UserId, Gender, DateOfBirth, Address, HealthInsuranceNo, PhotoUrl) VALUES
@@ -65,5 +65,5 @@ INSERT INTO Patients(UserId, Gender, DateOfBirth, Address, HealthInsuranceNo, Ph
 
 -- Không tạo sẵn lịch khám cho cả tháng.
 -- Khi bệnh nhân đăng ký, Stored Procedure sp_BookAppointment sẽ tự tìm hoặc tạo lịch mới
--- theo bác sĩ + ngày khám + ca khám. Mỗi ca tối đa 20 slot.
+-- theo bác sĩ + ngày khám + ca khám. Không tạo sẵn lịch và không giới hạn slot.
 GO

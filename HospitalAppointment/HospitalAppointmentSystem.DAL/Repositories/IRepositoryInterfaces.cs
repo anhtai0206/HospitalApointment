@@ -25,7 +25,7 @@ public interface IAppointmentRepository
     Task<List<AppointmentDetailDTO>> GetByPatientAsync(int patientId);
     Task<List<AppointmentDetailDTO>> GetAllAsync();
     Task<List<AppointmentDetailDTO>> GetByDoctorAsync(int doctorId);
-    Task<ApiResponse> CancelAsync(int appointmentId);
+    Task<ApiResponse> CancelAsync(int appointmentId, string? cancelReason = null);
     Task<ApiResponse> ConfirmAsync(int appointmentId);
     Task<ApiResponse> CompleteAsync(int appointmentId);
 }

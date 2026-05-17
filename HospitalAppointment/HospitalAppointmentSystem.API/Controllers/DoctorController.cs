@@ -70,4 +70,24 @@ public class DoctorController : Controller
         TempData[result.Success ? "Success" : "Error"] = result.Message;
         return RedirectToAction(nameof(MySchedule));
     }
+
+    [Authorize(Roles = "Doctor")]
+    [HttpPost]
+    public async Task<IActionResult> Cancel(int id, string? cancelReason)
+    {
+        var doctorIdClaim = User.FindFirstValue("DoctorId");
+        if (string.IsNullOrWhiteSpace(doctorIdClaim)) return RedirectToAction("AccessDenied", "Account");
+
+        var appointments = await _appointmentService.GetByDoctorAsync(int.Parse(doctorIdClaim));
+        if (!appointments.Any(a => a.AppointmentId == id))
+        {
+            TempData["Error"] = "Bạn không có quyền hủy lịch hẹn này";
+            return RedirectToAction(nameof(MySchedule));
+        }
+
+        var result = await _appointmentService.CancelAsync(id, cancelReason);
+        TempData[result.Success ? "Success" : "Error"] = result.Message;
+        return RedirectToAction(nameof(MySchedule));
+    }
+
 }

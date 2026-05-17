@@ -29,9 +29,9 @@ public class AdminController : Controller
     }
 
     [HttpPost]
-    public async Task<IActionResult> Cancel(int id)
+    public async Task<IActionResult> Cancel(int id, string? cancelReason)
     {
-        var result = await _appointmentService.CancelAsync(id);
+        var result = await _appointmentService.CancelAsync(id, cancelReason);
         TempData[result.Success ? "Success" : "Error"] = result.Message;
         return RedirectToAction(nameof(Appointments));
     }

@@ -65,6 +65,7 @@ public class AppointmentRepository : IAppointmentRepository
             EndTime = a.DoctorSchedule.EndTime,
             Reason = a.Reason ?? string.Empty,
             Status = a.Status,
+            CancelReason = a.CancelReason ?? string.Empty,
             CreatedAt = a.CreatedAt
         });
     }
@@ -102,24 +103,21 @@ public class AppointmentRepository : IAppointmentRepository
         }
     }
 
-    public async Task<ApiResponse> CancelAsync(int appointmentId)
+    public async Task<ApiResponse> CancelAsync(int appointmentId, string? cancelReason = null)
     {
         var appointment = await _db.Appointments.FirstOrDefaultAsync(a => a.AppointmentId == appointmentId);
         if (appointment == null) return ApiResponse.Fail("Không tìm thấy lịch hẹn");
         if (appointment.Status == "Cancelled") return ApiResponse.Fail("Lịch hẹn đã bị hủy trước đó");
+        if (appointment.Status == "Confirmed") return ApiResponse.Fail("Lịch hẹn đã được xác nhận nên không thể hủy");
+        if (appointment.Status == "Completed") return ApiResponse.Fail("Lịch hẹn đã khám xong nên không thể hủy");
 
         appointment.Status = "Cancelled";
-        var schedule = await _db.DoctorSchedules.FirstOrDefaultAsync(s => s.ScheduleId == appointment.ScheduleId);
-        if (schedule != null && schedule.CurrentPatients > 0)
-        {
-            schedule.CurrentPatients--;
-            if (schedule.CurrentPatients < schedule.MaxPatients) schedule.Status = "Available";
-        }
+        appointment.CancelReason = string.IsNullOrWhiteSpace(cancelReason) ? null : cancelReason.Trim();
 
         _db.AppointmentLogs.Add(new AppointmentLog
         {
             AppointmentId = appointmentId,
-            ActionName = "Cancelled",
+            ActionName = string.IsNullOrWhiteSpace(appointment.CancelReason) ? "Cancelled" : $"Cancelled: {appointment.CancelReason}",
             ActionDate = DateTime.Now
         });
 

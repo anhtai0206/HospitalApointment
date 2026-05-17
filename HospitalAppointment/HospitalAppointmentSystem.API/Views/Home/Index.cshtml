@@ -14,6 +14,7 @@
     int? selectedSpecialtyId = ViewBag.SelectedSpecialtyId as int?;
     string? doctorName = ViewBag.DoctorName as string;
     var jsonOptions = new JsonSerializerOptions { PropertyNamingPolicy = null };
+    string Money(decimal value) => string.Format("{0:N0}", value).Replace(",", ".") + " đ";
 }
 
 <section class="landing-hero">
@@ -95,9 +96,10 @@
                                 <option value="">-- Chọn dịch vụ --</option>
                                 @foreach (var service in services)
                                 {
-                                    <option value="@service.MedicalServiceId">@service.ServiceName</option>
+                                    <option value="@service.MedicalServiceId" data-price="@Money(service.Price)" data-description="@service.Description">@service.ServiceName - @Money(service.Price)</option>
                                 }
                             </select>
+                            <div id="servicePriceHint" class="service-price-hint" style="display:none;"></div>
                         </div>
 
                         <div class="form-row-new">
@@ -179,16 +181,16 @@ else
         {
             <article class="doctor-card-new" data-doctor-id="@d.DoctorId" data-specialty-id="@d.SpecialtyId" data-doctor-name="@d.FullName.ToLower()">
                 <div class="doctor-image-panel">
-                    @if (!string.IsNullOrWhiteSpace(d.PhotoUrl))
-                    {
-                        <img class="doctor-photo" src="@d.PhotoUrl" alt="@d.FullName" />
+                    @{
+                        var isFemaleDoctor = d.FullName.Contains("Thị", StringComparison.OrdinalIgnoreCase)
+                            || d.FullName.Contains("Bình", StringComparison.OrdinalIgnoreCase)
+                            || d.FullName.Contains("Hạnh", StringComparison.OrdinalIgnoreCase);
+                        var defaultDoctorPhoto = isFemaleDoctor
+                            ? "/images/default-female-doctor.png"
+                            : "/images/default-doctor.png";
+                        var doctorPhoto = string.IsNullOrWhiteSpace(d.PhotoUrl) ? defaultDoctorPhoto : d.PhotoUrl;
                     }
-                    else
-                    {
-                        <div class="doctor-default-avatar" title="Ảnh bác sĩ mặc định">
-                            <span>👨‍⚕️</span>
-                        </div>
-                    }
+                    <img class="doctor-photo" src="@doctorPhoto" alt="@d.FullName" />
                     @if (User.Identity?.IsAuthenticated == true && User.IsInRole("Patient"))
                     {
                         <button type="button" class="doctor-book-btn" onclick="chooseDoctorFromCard(@d.SpecialtyId, @d.DoctorId)">📅 Đặt lịch hẹn</button>
@@ -210,18 +212,18 @@ else
     </div>
 </section>
 
+
+
+
+
 <script>
     const allDoctors = @Html.Raw(JsonSerializer.Serialize(allDoctors, jsonOptions));
     const allRooms = @Html.Raw(JsonSerializer.Serialize(rooms, jsonOptions));
 
     const shifts = [
-        { code: 'CA1', label: 'Ca 1: 07:30 - 09:30', start: '07:30:00', end: '09:30:00' },
-        { code: 'CA2', label: 'Ca 2: 09:45 - 12:00', start: '09:45:00', end: '12:00:00' },
-        { code: 'CA3', label: 'Ca 3: 13:30 - 15:30', start: '13:30:00', end: '15:30:00' },
-        { code: 'CA4', label: 'Ca 4: 15:45 - 18:00', start: '15:45:00', end: '18:00:00' }
+        { code: 'MORNING', label: 'Ca sáng: 07:30 - 11:30', start: '07:30:00', end: '11:30:00' },
+        { code: 'AFTERNOON', label: 'Ca chiều: 13:30 - 17:30', start: '13:30:00', end: '17:30:00' }
     ];
-
-    function t(text) { return window.medbookT ? window.medbookT(text) : text; }
 
     const specialtySelect = document.getElementById('bookSpecialtyId');
     const doctorSelect = document.getElementById('bookDoctorId');
@@ -253,7 +255,7 @@ else
     }
 
     function resetSelect(select, placeholder) {
-        select.innerHTML = `<option value="">${t(placeholder)}</option>`;
+        select.innerHTML = `<option value="">${placeholder}</option>`;
     }
 
     function populateDoctors() {
@@ -267,6 +269,7 @@ else
         roomSelect.disabled = true;
         serviceSelect.disabled = true;
         serviceSelect.value = '';
+        updateServicePriceHint();
         hiddenScheduleId.value = '';
         hiddenDoctorId.value = '';
         updateSelectedBox();
@@ -320,11 +323,26 @@ else
         shifts.forEach(shift => {
             const option = document.createElement('option');
             option.value = shift.code;
-            option.textContent = `${t(shift.label)} (${t('tối đa 20 slot')})`;
+            option.textContent = shift.label;
             option.dataset.start = shift.start;
             option.dataset.end = shift.end;
             shiftSelect.appendChild(option);
         });
+    }
+
+    function updateServicePriceHint() {
+        const hint = document.getElementById('servicePriceHint');
+        if (!hint || !serviceSelect) return;
+        const option = serviceSelect.options[serviceSelect.selectedIndex];
+        if (serviceSelect.value && option) {
+            const price = option.dataset.price || '';
+            const description = option.dataset.description || '';
+            hint.style.display = 'block';
+            hint.innerHTML = `<strong>Giá dịch vụ: ${price}</strong>${description ? `<span>${description}</span>` : ''}`;
+        } else {
+            hint.style.display = 'none';
+            hint.innerHTML = '';
+        }
     }
 
     function updateSelectedBox() {
@@ -339,13 +357,13 @@ else
             box.innerHTML = `
                 <div class="selected-icon">✓</div>
                 <div>
-                    <strong>${t('Đã chọn lịch khám')}</strong>
+                    <strong>Đã chọn lịch khám</strong>
                     <span>${doctorText} - ${specialtyText}</span>
                     <span>${dateInput.value}, ${shiftText}</span>
                 </div>`;
         } else {
             box.classList.add('empty');
-            box.innerHTML = `<div class="selected-icon">✓</div><div><strong>${t('Chưa chọn đủ thông tin')}</strong></div>`;
+            box.innerHTML = `<div class="selected-icon">✓</div><div><strong>Chưa chọn đủ thông tin</strong></div>`;
         }
     }
 
@@ -362,8 +380,8 @@ else
 
 
     function requireLoginToBook() {
-        showAppModal(t('Bạn cần đăng nhập bằng tài khoản bệnh nhân để đặt lịch khám.'), 'error');
-        setTimeout(function(){ window.location.href = '/Account/Login?returnUrl=/'; }, 900);
+        alert('Bạn cần đăng nhập bằng tài khoản bệnh nhân để đặt lịch khám.');
+        window.location.href = '/Account/Login?returnUrl=/';
     }
 
     function setActiveHomeTab(active) {
@@ -396,27 +414,27 @@ else
     function validateQuickBooking() {
         if (!specialtySelect || !doctorSelect || !dateInput || !shiftSelect || !serviceSelect || !roomSelect) return false;
         if (!specialtySelect.value) {
-            showBookingMessage(t('Vui lòng chọn chuyên khoa.'));
+            showBookingMessage('Vui lòng chọn chuyên khoa.');
             return false;
         }
         if (!doctorSelect.value) {
-            showBookingMessage(t('Vui lòng chọn bác sĩ.'));
+            showBookingMessage('Vui lòng chọn bác sĩ.');
             return false;
         }
         if (!dateInput.value) {
-            showBookingMessage(t('Vui lòng chọn ngày khám.'));
+            showBookingMessage('Vui lòng chọn ngày khám.');
             return false;
         }
         if (!shiftSelect.value) {
-            showBookingMessage(t('Vui lòng chọn ca khám.'));
+            showBookingMessage('Vui lòng chọn ca khám.');
             return false;
         }
         if (!serviceSelect.value) {
-            showBookingMessage(t('Vui lòng chọn dịch vụ khám.'));
+            showBookingMessage('Vui lòng chọn dịch vụ khám.');
             return false;
         }
         if (!roomSelect.value) {
-            showBookingMessage(t('Vui lòng chọn phòng khám.'));
+            showBookingMessage('Vui lòng chọn phòng khám.');
             return false;
         }
         return true;
@@ -438,7 +456,6 @@ else
         hiddenDoctorId.value = doctorSelect.value;
         populateRooms();
         populateShifts();
-        if (typeof applyLanguage === 'function') applyLanguage(localStorage.getItem('medbookLang') || 'vi');
     });
 
     
@@ -446,17 +463,18 @@ else
         const selectedDate = dateInput.value;
         const today = dateInput.min;
         if (selectedDate && today && selectedDate < today) {
-            showAppModal(t('Không thể chọn ngày khám trong quá khứ. Hệ thống sẽ tự chuyển về ngày hiện tại.'), 'error');
+            showAppModal('Không thể chọn ngày khám trong quá khứ. Hệ thống sẽ tự chuyển về ngày hiện tại.', 'error');
             dateInput.value = today;
         }
         populateShifts();
-        if (typeof applyLanguage === 'function') applyLanguage(localStorage.getItem('medbookLang') || 'vi');
     });
 
     shiftSelect?.addEventListener('change', function () {
         hiddenScheduleId.value = '';
         updateSelectedBox();
     });
+
+    serviceSelect?.addEventListener('change', updateServicePriceHint);
 
 
     function liveFilterDoctors() {
@@ -487,6 +505,5 @@ else
         populateDoctors();
         populateRooms();
         populateShifts();
-        if (typeof applyLanguage === 'function') applyLanguage(localStorage.getItem('medbookLang') || 'vi');
     });
 </script>

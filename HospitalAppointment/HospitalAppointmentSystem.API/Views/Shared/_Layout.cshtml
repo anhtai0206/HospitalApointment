@@ -41,7 +41,7 @@
                 <a href="/Account/ChangePassword">Đổi mật khẩu</a>
                 <div class="user-card">
                     <strong>@User.Identity!.Name</strong>
-                    <span>@(User.IsInRole("Admin") ? "Quản trị viên" : User.IsInRole("Doctor") ? "Bác sĩ" : "Bệnh nhân")</span>
+                    <span>@User.FindFirstValue(ClaimTypes.Role)</span>
                 </div>
                 <form asp-controller="Account" asp-action="Logout" method="post">
                     <button class="sidebar-action logout-button" type="submit">Đăng xuất</button>
@@ -75,7 +75,7 @@
                             <strong>MEDBOOK</strong>
                         </div>
                     </div>
-                    <p><strong>Địa chỉ:</strong> Số 88, Đường số 8, Khu dân cư Trung Sơn, TP. Hồ Chí Minh</p>
+                    <p><strong>Địa chỉ:</strong> Khu dân cư, Hiệp Phước, Hồ Chí Minh, Việt Nam</p>
                     <p><strong>Email:</strong> dichvukhachhang@medbook.vn</p>
                     <p><strong>Giấy phép hoạt động:</strong> 230/BYT-GPHĐ do Bộ Y tế cấp.</p>
                 </div>
@@ -83,32 +83,42 @@
                 <div class="footer-column">
                     <h4>Về chúng tôi</h4>
                     <a href="#doctorSection">Đội ngũ bác sĩ</a>
-                    <a href="#bookingSection">Đặt lịch khám</a>
-                    <a href="/Account/PatientInfo">Hồ sơ bệnh nhân</a>
-                    <a href="/Appointment/MyAppointments">Lịch khám của tôi</a>
-                    <a href="/Account/ChangePassword">Đổi mật khẩu</a>
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        <a href="#bookingSection">Đặt lịch khám</a>
+                        <a href="/Account/PatientInfo">Hồ sơ bệnh nhân</a>
+                        <a href="/Appointment/MyAppointments">Lịch khám</a>
+                    }
+                    else
+                    {
+                        <a href="/Account/Login" onclick="return requireLoginFromFooter('/Account/Login')">Đặt lịch khám</a>
+                        <a href="/Account/Login" onclick="return requireLoginFromFooter('/Account/Login')">Hồ sơ bệnh nhân</a>
+                        <a href="/Account/Login" onclick="return requireLoginFromFooter('/Account/Login')">Lịch khám</a>
+                    }
                 </div>
 
                 <div class="footer-column">
                     <h4>Giờ làm việc</h4>
                     <p>Từ thứ 2 đến thứ 7</p>
-                    <p>Buổi sáng:<br /><strong>07:30 – 12:00</strong></p>
-                    <p>Buổi chiều:<br /><strong>13:30 – 18:00</strong></p>
+                    <p>Buổi sáng:<br /><strong>07:30 – 11:30</strong></p>
+                    <p>Buổi chiều:<br /><strong>13:30 – 17:30</strong></p>
                     <a class="footer-hotline" href="tel:18006767">Hotline: 1800 6767</a>
                 </div>
 
                 <div class="footer-column">
                     <h4>Liên hệ</h4>
-                    <div class="footer-socials">
-                        <a href="https://facebook.com" target="_blank" rel="noopener" aria-label="Facebook">f</a>
-                        <a href="https://youtube.com" target="_blank" rel="noopener" aria-label="YouTube">▶</a>
-                        <a href="https://zalo.me/18006767" target="_blank" rel="noopener" aria-label="Zalo">Zalo</a>
+                    <div class="footer-socials footer-socials-modern">
+                        <a class="social-facebook" href="https://facebook.com" target="_blank" rel="noopener" aria-label="Facebook">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 8h2.2V4.3C15.8 4.2 14.5 4 13.1 4 10.2 4 8.2 5.8 8.2 9.1V12H5v4.1h3.2V24h4.2v-7.9h3.3l.5-4.1h-3.8V9.5c0-1.2.3-1.5 1.6-1.5Z"/></svg>
+                        </a>
+                        <a class="social-youtube" href="https://youtube.com" target="_blank" rel="noopener" aria-label="YouTube">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2 31.5 31.5 0 0 0 0 12a31.5 31.5 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1c.5-1.9.5-5.8.5-5.8s0-3.9-.5-5.8ZM9.6 15.6V8.4L15.8 12l-6.2 3.6Z"/></svg>
+                        </a>
+                        <a class="social-zalo" href="https://zalo.me/18006767" target="_blank" rel="noopener" aria-label="Zalo">Zalo</a>
                     </div>
-                    <p class="newsletter-title">Theo dõi bản tin chúng tôi</p>
-                    <form class="newsletter-form" onsubmit="event.preventDefault(); showAppModal('Cảm ơn bạn đã đăng ký nhận bản tin.', 'success');">
-                        <input type="email" placeholder="Nhập email của bạn" aria-label="Email nhận bản tin" />
-                        <button type="submit">Đăng ký</button>
-                    </form>
+                    <a class="footer-map-card footer-map-card-contact" href="https://www.google.com/maps/dir/?api=1&destination=Khu%20d%C3%A2n%20c%C6%B0%2C%20Hi%E1%BB%87p%20Ph%C6%B0%E1%BB%9Bc%2C%20H%E1%BB%93%20Ch%C3%AD%20Minh%2C%20Vi%E1%BB%87t%20Nam" target="_blank" rel="noopener" aria-label="Mở Google Map chỉ đường">
+                        <iframe title="Bản đồ Khu dân cư Hiệp Phước" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://www.google.com/maps?q=Khu%20d%C3%A2n%20c%C6%B0%2C%20Hi%E1%BB%87p%20Ph%C6%B0%E1%BB%9Bc%2C%20H%E1%BB%93%20Ch%C3%AD%20Minh%2C%20Vi%E1%BB%87t%20Nam&output=embed"></iframe>
+                    </a>
                     <div class="dmca-box">✓ DMCA PROTECTED</div>
                 </div>
             </footer>
@@ -117,7 +127,7 @@
 
     <div class="floating-contact" aria-label="Liên hệ nhanh">
         <a class="float-btn hotline" href="tel:18006767" title="Gọi hotline">☎<span>Hotline</span></a>
-        <a class="float-btn fanpage" href="https://facebook.com" target="_blank" rel="noopener" title="Fanpage">💬<span>Fanpage</span></a>
+        <a class="float-btn fanpage" href="https://facebook.com" target="_blank" rel="noopener" title="Fanpage">f<span>Fanpage</span></a>
         <a class="float-btn zalo" href="https://zalo.me/18006767" target="_blank" rel="noopener" title="Zalo">Zalo<span>Zalo</span></a>
     </div>
 
@@ -133,6 +143,193 @@
     <script>
         window.appTempSuccess = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(TempData["Success"]));
         window.appTempError = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(TempData["Error"]));
+
+        const medbookTranslations = {
+            en: {
+                'Đặt lịch khám': 'Book appointment',
+                'Trang chủ': 'Home',
+                'Lịch của tôi': 'My appointments',
+                'Thông tin bệnh nhân': 'Patient profile',
+                'Lịch khám của bác sĩ': 'Doctor schedule',
+                'Quản lý lịch hẹn': 'Appointment management',
+                'Đổi mật khẩu': 'Change password',
+                'Đăng xuất': 'Log out',
+                'Đăng nhập': 'Sign in',
+                'Quản trị viên': 'Administrator',
+                'Bác sĩ': 'Doctor',
+                'Bệnh nhân': 'Patient',
+                'BỆNH VIỆN ĐA KHOA QUỐC TẾ': 'INTERNATIONAL GENERAL HOSPITAL',
+                'Đặt lịch khám bệnh trực tuyến': 'Online medical appointment booking',
+                'Chọn chuyên khoa, bác sĩ, ngày khám và khung giờ phù hợp chỉ trong vài bước.': 'Choose a specialty, doctor, date and time slot in just a few steps.',
+                'Đặt hẹn khám nhanh': 'Quick appointment',
+                'Chọn bác sĩ': 'Choose doctor',
+                'ĐẶT LỊCH NHANH': 'QUICK BOOKING',
+                'Thông tin đặt hẹn': 'Appointment information',
+                'Chuyên khoa': 'Specialty',
+                'Ngày khám': 'Appointment date',
+                'Giờ khám': 'Time slot',
+                'Dịch vụ': 'Service',
+                'Phòng khám': 'Clinic room',
+                'Chưa chọn đủ thông tin': 'Required information is incomplete',
+                'Đã chọn lịch khám': 'Appointment selected',
+                'Lý do khám': 'Reason for visit',
+                'Đăng ký lịch khám': 'Book appointment',
+                'Thông tin cá nhân lưu tại hồ sơ bệnh nhân.': 'Personal information is saved in the patient profile.',
+                'Cập nhật hồ sơ': 'Update profile',
+                'ĐỘI NGŨ CHÚNG TÔI': 'OUR TEAM',
+                'Đội ngũ bác sĩ chất lượng': 'High-quality doctors',
+                'chuyên môn cao': 'with strong expertise',
+                'Tìm kiếm': 'Search',
+                'Tất cả': 'All',
+                'Đội ngũ bác sĩ': 'Doctors',
+                'Hồ sơ bệnh nhân': 'Patient profile',
+                'Lịch khám': 'Appointments',
+                'Về chúng tôi': 'About us',
+                'Giờ làm việc': 'Working hours',
+                'Liên hệ': 'Contact',
+                'Địa chỉ:': 'Address:',
+                'Khu dân cư, Hiệp Phước, Hồ Chí Minh, Việt Nam': 'Residential area, Hiep Phuoc, Ho Chi Minh City, Vietnam',
+                'Chỉ đường Google Map': 'Google Maps directions',
+                'Email:': 'Email:',
+                'Giấy phép hoạt động:': 'Operating license:',
+                '230/BYT-GPHĐ do Bộ Y tế cấp.': '230/BYT-GPHD issued by the Ministry of Health.',
+                'Từ thứ 2 đến thứ 7': 'Monday to Saturday',
+                'Buổi sáng:': 'Morning:',
+                'Buổi chiều:': 'Afternoon:',
+                'Đăng ký': 'Subscribe',
+                'Hotline': 'Hotline',
+                'Hotline: 1800 6767': 'Hotline: 1800 6767',
+                'Thông báo': 'Notification',
+                'Đóng': 'Close',
+                'Không thành công': 'Unsuccessful',
+                'Thành công': 'Success',
+                'Bạn cần đăng nhập để sử dụng chức năng này.': 'You need to sign in to use this feature.',
+                'Cảm ơn bạn đã đăng ký nhận bản tin.': 'Thank you for subscribing to our newsletter.',
+                'Khám dịch vụ': 'Service examination',
+                'Khám thường': 'Standard examination',
+                'Khám VIP - thương nhân': 'VIP business examination',
+                'Tái khám nội trú': 'Inpatient follow-up',
+                'Khám dịch vụ - 250.000 đ': 'Service examination - 250,000 VND',
+                'Khám thường - 120.000 đ': 'Standard examination - 120,000 VND',
+                'Khám VIP - thương nhân - 600.000 đ': 'VIP business examination - 600,000 VND',
+                'Tái khám nội trú - 80.000 đ': 'Inpatient follow-up - 80,000 VND',
+                'Ca sáng: 07:30 - 11:30': 'Morning shift: 07:30 - 11:30',
+                'Ca chiều: 13:30 - 17:30': 'Afternoon shift: 13:30 - 17:30',
+                'Nội tổng quát': 'General medicine',
+                'Tim mạch': 'Cardiology',
+                'Da liễu': 'Dermatology',
+                'Tai mũi họng': 'ENT',
+                'Nhi khoa': 'Pediatrics',
+                'Răng hàm mặt': 'Dentistry',
+                'Mắt': 'Ophthalmology',
+                'Sản phụ khoa': 'Obstetrics and gynecology',
+                'Cơ xương khớp': 'Musculoskeletal',
+                'Thần kinh': 'Neurology',
+                'Thạc sĩ': 'Master\'s degree',
+                'Chuyên khoa I': 'Specialist I',
+                'Bác sĩ': 'Doctor',
+                'Bác sĩ nội tổng quát, tư vấn bệnh lý người lớn': 'General medicine doctor, adult health consultant',
+                'Bác sĩ chuyên tim mạch và huyết áp': 'Cardiology and blood pressure specialist',
+                'Bác sĩ da liễu, điều trị mụn và viêm da': 'Dermatologist for acne and dermatitis treatment',
+                'Bác sĩ tai mũi họng': 'ENT doctor',
+                'Bác sĩ nhi khoa': 'Pediatrician',
+                'Bác sĩ răng hàm mặt': 'Dentist',
+                '6 năm kinh nghiệm': '6 years of experience',
+                '7 năm kinh nghiệm': '7 years of experience',
+                '8 năm kinh nghiệm': '8 years of experience',
+                '9 năm kinh nghiệm': '9 years of experience',
+                '10 năm kinh nghiệm': '10 years of experience',
+                '12 năm kinh nghiệm': '12 years of experience',
+                'TIN TỨC VÀ ƯU ĐÃI': 'NEWS AND PROMOTIONS',
+                'Cập Nhật Mới Nhất': 'Latest Updates',
+                'Những thông tin ưu đãi, sự kiện y tế và hướng dẫn đặt lịch tại MEDBOOK sẽ được cập nhật thường xuyên cho Quý bệnh nhân.': 'Promotions, healthcare events and appointment guidance at MEDBOOK are updated regularly for patients.',
+                'ƯU ĐÃI - SỰ KIỆN': 'PROMOTION - EVENT',
+                'Ưu đãi khám tổng quát cuối tuần': 'Weekend general check-up offer',
+                'Giảm 20% phí khám dịch vụ cho bệnh nhân đặt lịch online vào thứ 7.': '20% off service examination fees for online appointments on Saturdays.',
+                'Tầm soát tim mạch tháng này': 'Cardiology screening this month',
+                'Gói đo huyết áp, tư vấn nguy cơ tim mạch và hướng dẫn theo dõi sức khỏe tại nhà.': 'Blood pressure check, cardiovascular risk consultation and home health monitoring guidance.',
+                'Miễn phí tư vấn đặt lịch lần đầu': 'Free first appointment consultation',
+                'Nhân viên MEDBOOK hỗ trợ chọn chuyên khoa, bác sĩ và khung giờ phù hợp cho bệnh nhân mới.': 'MEDBOOK staff help new patients choose the right specialty, doctor and time slot.',
+                'Xem chi tiết': 'View details',
+                'Phí dịch vụ khám': 'Examination service fees',
+                'Dịch vụ khám tại MEDBOOK có giá niêm yết rõ ràng, bệnh nhân chọn dịch vụ phù hợp khi đặt lịch.': 'MEDBOOK examination services have transparent listed prices, allowing patients to choose the right service when booking.'
+            }
+        };
+
+        const medbookPlaceholders = {
+            en: {
+                'Nhập tên bác sĩ...': 'Enter doctor name...',
+                'Có thể để trống hoặc nhập triệu chứng...': 'Optional: enter symptoms...',
+                '-- Chọn chuyên khoa --': '-- Select specialty --',
+                '-- Chọn bác sĩ --': '-- Select doctor --',
+                '-- Chọn giờ khám --': '-- Select time slot --',
+                '-- Chọn dịch vụ --': '-- Select service --',
+                '-- Chọn phòng khám --': '-- Select clinic room --'
+            }
+        };
+
+        const medbookOriginalText = new WeakMap();
+        const medbookOriginalAttrs = new WeakMap();
+
+        function translateTextValue(value, lang) {
+            if (!value) return value;
+            const match = value.match(/^(\s*)(.*?)(\s*)$/s);
+            const key = match ? match[2] : value;
+            const translated = lang === 'vi' ? key : (medbookTranslations.en[key] || key);
+            return (match ? match[1] : '') + translated + (match ? match[3] : '');
+        }
+
+        function translateDom(lang) {
+            document.documentElement.lang = lang === 'en' ? 'en' : 'vi';
+            const flag = document.getElementById('languageFlag');
+            const name = document.getElementById('languageName');
+            if (flag) flag.textContent = lang === 'en' ? 'EN' : 'VN';
+            if (name) name.textContent = lang === 'en' ? 'English' : 'Tiếng Việt';
+            document.getElementById('languageMenu')?.classList.remove('open');
+
+            const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
+                acceptNode(node) {
+                    const parent = node.parentElement;
+                    if (!parent) return NodeFilter.FILTER_REJECT;
+                    if (['SCRIPT', 'STYLE', 'TEXTAREA'].includes(parent.tagName)) return NodeFilter.FILTER_REJECT;
+                    if (!node.nodeValue || !node.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+                    return NodeFilter.FILTER_ACCEPT;
+                }
+            });
+            const nodes = [];
+            while (walker.nextNode()) nodes.push(walker.currentNode);
+            nodes.forEach(node => {
+                if (!medbookOriginalText.has(node)) medbookOriginalText.set(node, node.nodeValue);
+                node.nodeValue = translateTextValue(medbookOriginalText.get(node), lang);
+            });
+
+            document.querySelectorAll('[placeholder], [title], [aria-label]').forEach(el => {
+                ['placeholder', 'title', 'aria-label'].forEach(attr => {
+                    if (!el.hasAttribute(attr)) return;
+                    let map = medbookOriginalAttrs.get(el);
+                    if (!map) { map = {}; medbookOriginalAttrs.set(el, map); }
+                    if (!map[attr]) map[attr] = el.getAttribute(attr);
+                    const base = map[attr];
+                    const translated = lang === 'vi' ? base : (medbookPlaceholders.en[base] || medbookTranslations.en[base] || base);
+                    el.setAttribute(attr, translated);
+                });
+            });
+        }
+
+        function setLanguage(lang) {
+            localStorage.setItem('medbookLang', lang);
+            translateDom(lang);
+        }
+
+        function toggleLanguageMenu() {
+            document.getElementById('languageMenu')?.classList.toggle('open');
+        }
+
+        document.addEventListener('click', function (event) {
+            const box = document.querySelector('.language-switcher');
+            if (box && !box.contains(event.target)) document.getElementById('languageMenu')?.classList.remove('open');
+        });
+
 
         function showAppModal(message, type) {
             if (!message) return;
@@ -164,253 +361,21 @@
             button.setAttribute('aria-label', show ? 'Ẩn mật khẩu' : 'Hiện mật khẩu');
         }
 
+        function requireLoginFromFooter(loginUrl) {
+            showAppModal('Bạn cần đăng nhập để sử dụng chức năng này.', 'error');
+            setTimeout(function () { window.location.href = loginUrl || '/Account/Login'; }, 900);
+            return false;
+        }
+
         function closeAppModal() {
             document.getElementById('appModal').style.display = 'none';
         }
 
-        const medbookTranslations = {
-            en: {
-                'Đặt lịch khám': 'Book appointment',
-                'Trang chủ': 'Home',
-                'Lịch của tôi': 'My appointments',
-                'Thông tin bệnh nhân': 'Patient profile',
-                'Lịch khám của bác sĩ': 'Doctor schedule',
-                'Quản lý lịch hẹn': 'Appointment management',
-                'Đổi mật khẩu': 'Change password',
-                'Đăng xuất': 'Log out',
-                'Đăng nhập': 'Sign in',
-                'Quản trị viên': 'Administrator',
-                'Bác sĩ': 'Doctor',
-                'Bệnh nhân': 'Patient',
-                'Đặt lịch khám bệnh trực tuyến': 'Online medical appointment booking',
-                'Chọn chuyên khoa, bác sĩ, ngày khám và khung giờ phù hợp chỉ trong vài bước.': 'Choose a specialty, doctor, date and time slot in just a few steps.',
-                'Đặt hẹn khám nhanh': 'Quick appointment',
-                'Chọn bác sĩ': 'Choose doctor',
-                'ĐẶT LỊCH NHANH': 'QUICK BOOKING',
-                'Thông tin đặt hẹn': 'Appointment information',
-                'Chuyên khoa': 'Specialty',
-                'Ngày khám': 'Appointment date',
-                'Giờ khám': 'Time slot',
-                'Dịch vụ': 'Service',
-                'Phòng khám': 'Clinic room',
-                'Chưa chọn đủ thông tin': 'Required information is incomplete',
-                'Lý do khám': 'Reason for visit',
-                'Đăng ký lịch khám': 'Book appointment',
-                'Thông tin cá nhân lưu tại hồ sơ bệnh nhân.': 'Personal information is saved in the patient profile.',
-                'Cập nhật hồ sơ': 'Update profile',
-                'ĐỘI NGŨ CHÚNG TÔI': 'OUR TEAM',
-                'Đội ngũ bác sĩ chất lượng': 'Qualified medical team',
-                'chuyên môn cao': 'high expertise',
-                'Tất cả': 'All',
-                'Tìm kiếm': 'Search',
-                'Đặt lịch hẹn': 'Book appointment',
-                'năm kinh nghiệm': 'years of experience',
-                'Mã lịch hẹn': 'Appointment ID',
-                'Mã lịch': 'ID',
-                'Bệnh nhân': 'Patient',
-                'Bệnh nhân Demo': 'Demo Patient',
-
-                'Thạc sĩ': "Master's degree",
-                'Chuyên khoa I': 'Specialist I',
-                'Bác sĩ nội tổng quát, tư vấn bệnh lý người lớn': 'General medicine doctor, adult disease consultation',
-                'Bác sĩ chuyên tim mạch và huyết áp': 'Cardiology and blood pressure specialist',
-                'Bác sĩ da liễu, điều trị mụn và viêm da': 'Dermatology doctor, acne and dermatitis treatment',
-                'Bác sĩ tai mũi họng': 'ENT doctor',
-                'Bác sĩ nhi khoa': 'Pediatric doctor',
-                'Bác sĩ răng hàm mặt': 'Dentist',
-                'Nội tổng quát': 'General medicine',
-                'Tim mạch': 'Cardiology',
-                'Da liễu': 'Dermatology',
-                'Tai mũi họng': 'ENT',
-                'Nhi khoa': 'Pediatrics',
-                'Răng hàm mặt': 'Dentistry',
-                'Dịch vụ': 'Service',
-                'Phòng khám': 'Clinic room',
-                'Ngày khám': 'Date',
-                'Giờ khám': 'Time',
-                'Lý do': 'Reason',
-                'Trạng thái': 'Status',
-                'Thao tác': 'Actions',
-                'Không ghi': 'No note',
-                'Hủy lịch': 'Cancel',
-                'Quản lý lịch hẹn khám bệnh': 'Medical appointment management',
-                'Trang này chỉ dành cho Admin. Bệnh nhân và bác sĩ sẽ không thấy mục này trên menu.': 'This page is only for administrators. Patients and doctors will not see this menu item.',
-                'Mã': 'ID',
-                'Ngày': 'Date',
-                'Giờ': 'Time',
-                'Xác nhận': 'Confirm',
-                'Đã khám': 'Completed',
-                'Hủy': 'Cancel',
-                'Bác sĩ chỉ thấy danh sách bệnh nhân đã đặt lịch với mình.': 'Doctors only see patients who booked with them.',
-                'Lý do khám': 'Reason',
-                'Mật khẩu cũ': 'Old password',
-                'Mật khẩu mới': 'New password',
-                'Xác nhận mật khẩu mới': 'Confirm new password',
-                'Cập nhật mật khẩu': 'Update password',
-                'Đăng nhập hệ thống': 'System sign in',
-                'Email': 'Email',
-                'Mật khẩu': 'Password',
-                'Ghi nhớ đăng nhập': 'Remember me',
-                'Đăng ký tài khoản': 'Create account',
-                'Quên mật khẩu?': 'Forgot password?',
-                'Đăng ký tài khoản bệnh nhân': 'Create patient account',
-                'Nhập lại mật khẩu': 'Confirm password',
-                'Tạo tài khoản': 'Create account',
-                'Đã có tài khoản? Đăng nhập': 'Already have an account? Sign in',
-                'Quên mật khẩu': 'Forgot password',
-                'Quay lại đăng nhập': 'Back to sign in',
-                'Thông tin hồ sơ bệnh nhân': 'Patient profile information',
-                'Đăng ký lịch khám': 'Book appointment',
-                'Họ tên': 'Full name',
-                'Số điện thoại': 'Phone number',
-                'Giới tính': 'Gender',
-                'Nam': 'Male',
-                'Nữ': 'Female',
-                'Ngày sinh': 'Date of birth',
-                'BHYT': 'Health insurance',
-                'Địa chỉ': 'Address',
-                'Ảnh 3x4': '3x4 photo',
-                'Lưu thông tin': 'Save information',
-                'Đăng nhập lại': 'Sign in again',
-                'Không thành công': 'Failed',
-                'Thành công': 'Success',
-                'Thông báo': 'Notification',
-                'Đóng': 'Close',
-                'Về chúng tôi': 'About us',
-                'Đội ngũ bác sĩ': 'Doctors',
-                'Hồ sơ bệnh nhân': 'Patient profile',
-                'Lịch khám của tôi': 'My appointments',
-                'Giờ làm việc': 'Working hours',
-                'Từ thứ 2 đến thứ 7': 'Monday to Saturday',
-                'Buổi sáng:': 'Morning:',
-                'Buổi chiều:': 'Afternoon:',
-                'Liên hệ': 'Contact',
-                'Theo dõi bản tin chúng tôi': 'Subscribe to our newsletter',
-                'Đăng ký': 'Subscribe',
-                'Địa chỉ:': 'Address:',
-                'Giấy phép hoạt động:': 'Operating license:',
-                'Chưa chọn lịch khám': 'No appointment selected',
-                'Đã chọn lịch khám': 'Appointment selected',
-                'Ca 1: 07:30 - 09:30': 'Shift 1: 07:30 - 09:30',
-                'Ca 2: 09:45 - 12:00': 'Shift 2: 09:45 - 12:00',
-                'Ca 3: 13:30 - 15:30': 'Shift 3: 13:30 - 15:30',
-                'Ca 4: 15:45 - 18:00': 'Shift 4: 15:45 - 18:00',
-                'Pending': 'Pending',
-                'Confirmed': 'Confirmed',
-                'Cancelled': 'Cancelled',
-                'Completed': 'Completed',
-                'Nội tổng quát': 'General medicine',
-                'Tim mạch': 'Cardiology',
-                'Da liễu': 'Dermatology',
-                'Tai mũi họng': 'ENT',
-                'Nhi khoa': 'Pediatrics',
-                'Răng hàm mặt': 'Dentistry',
-                'Khám dịch vụ': 'Service examination',
-                'Khám thường': 'Regular examination',
-                'Khám VIP - thương nhân': 'VIP business examination',
-                'tối đa 20 slot': 'maximum 20 slots',
-                'Bạn cần đăng nhập bằng tài khoản bệnh nhân để đặt lịch khám.': 'Please sign in with a patient account to book an appointment.',
-                'Không thể chọn ngày khám trong quá khứ. Hệ thống sẽ tự chuyển về ngày hiện tại.': 'You cannot select a past date. The system will switch back to today.',
-                'Vui lòng chọn chuyên khoa.': 'Please select a specialty.',
-                'Vui lòng chọn bác sĩ.': 'Please select a doctor.',
-                'Vui lòng chọn ngày khám.': 'Please select an appointment date.',
-                'Vui lòng chọn ca khám.': 'Please select a time slot.',
-                'Vui lòng chọn dịch vụ khám.': 'Please select a service.',
-                'Vui lòng chọn phòng khám.': 'Please select a clinic room.',
-                'Tái khám nội trú': 'Inpatient follow-up'
-            }
-        };
-
-        const medbookPlaceholders = {
-            en: {
-                'Nhập tên bác sĩ...': 'Enter doctor name...',
-                'Có thể để trống hoặc nhập triệu chứng...': 'Optional: enter symptoms...',
-                'Nhập email': 'Enter email',
-                'Nhập mật khẩu': 'Enter password',
-                'Nhập mật khẩu mới': 'Enter new password',
-                'Nhập lại mật khẩu mới': 'Confirm new password',
-                'Nhập lại mật khẩu': 'Confirm password',
-                'Nhập email của bạn': 'Enter your email',
-                '-- Chọn chuyên khoa --': '-- Select specialty --',
-                '-- Chọn bác sĩ --': '-- Select doctor --',
-                '-- Chọn giờ khám --': '-- Select time slot --',
-                '-- Chọn dịch vụ --': '-- Select service --',
-                '-- Chọn phòng khám --': '-- Select clinic room --'
-            }
-        };
-
-        function translateText(text) {
-            const lang = localStorage.getItem('medbookLang') || 'vi';
-            return lang === 'vi' ? text : (medbookTranslations.en[text] || text);
-        }
-        window.medbookT = translateText;
-
-        const translatedTextNodes = new WeakMap();
-        function applyLanguage(lang) {
-            localStorage.setItem('medbookLang', lang);
-            document.documentElement.lang = lang;
-            document.getElementById('languageFlag').textContent = lang === 'vi' ? 'VN' : 'EN';
-            document.getElementById('languageName').textContent = lang === 'vi' ? 'Tiếng Việt' : 'English';
-            document.getElementById('languageMenu')?.classList.remove('open');
-
-            const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
-                acceptNode(node) {
-                    const parent = node.parentElement;
-                    if (!parent) return NodeFilter.FILTER_REJECT;
-                    if (['SCRIPT', 'STYLE', 'TEXTAREA'].includes(parent.tagName)) return NodeFilter.FILTER_REJECT;
-                    if (!node.nodeValue || !node.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
-                    return NodeFilter.FILTER_ACCEPT;
-                }
-            });
-            const nodes = [];
-            while (walker.nextNode()) nodes.push(walker.currentNode);
-            nodes.forEach(node => {
-                if (!translatedTextNodes.has(node)) translatedTextNodes.set(node, node.nodeValue);
-                const base = translatedTextNodes.get(node);
-                const leading = base.match(/^\s*/)[0];
-                const trailing = base.match(/\s*$/)[0];
-                const key = base.trim();
-                let translatedKey = medbookTranslations.en[key] || key;
-                if (lang !== 'vi') {
-                    const expMatch = key.match(/^(\d+)\s+năm kinh nghiệm$/i);
-                    if (expMatch) translatedKey = `${expMatch[1]} years of experience`;
-                    const doctorNameMatch = key.match(/^BS\.\s+(.+)$/i);
-                    if (doctorNameMatch) translatedKey = `Dr. ${doctorNameMatch[1]}`;
-                }
-                node.nodeValue = lang === 'vi' ? base : leading + translatedKey + trailing;
-            });
-
-            document.querySelectorAll('input[placeholder], textarea[placeholder], select option').forEach(el => {
-                if (!el.dataset.baseText) el.dataset.baseText = el.placeholder || el.textContent || '';
-                const base = el.dataset.baseText;
-                const translated = lang === 'vi' ? base : (medbookPlaceholders.en[base] || medbookTranslations.en[base] || base);
-                if ('placeholder' in el && el.placeholder) el.placeholder = translated;
-                else el.textContent = translated;
-            });
-            document.querySelectorAll('[title], [aria-label]').forEach(el => {
-                if (el.title) {
-                    if (!el.dataset.baseTitle) el.dataset.baseTitle = el.title;
-                    el.title = lang === 'vi' ? el.dataset.baseTitle : (medbookTranslations.en[el.dataset.baseTitle] || el.dataset.baseTitle);
-                }
-                const aria = el.getAttribute('aria-label');
-                if (aria) {
-                    if (!el.dataset.baseAria) el.dataset.baseAria = aria;
-                    el.setAttribute('aria-label', lang === 'vi' ? el.dataset.baseAria : (medbookTranslations.en[el.dataset.baseAria] || el.dataset.baseAria));
-                }
-            });
-        }
-
-        function setLanguage(lang) { applyLanguage(lang); }
-        function toggleLanguageMenu() { document.getElementById('languageMenu')?.classList.toggle('open'); }
-        document.addEventListener('click', function(e) {
-            const box = document.querySelector('.language-switcher');
-            if (box && !box.contains(e.target)) document.getElementById('languageMenu')?.classList.remove('open');
-        });
-
         document.addEventListener('DOMContentLoaded', function () {
+            const savedLang = localStorage.getItem('medbookLang') || 'vi';
+            translateDom(savedLang);
             if (window.appTempSuccess) showAppModal(window.appTempSuccess, 'success');
             if (window.appTempError) showAppModal(window.appTempError, 'error');
-            applyLanguage(localStorage.getItem('medbookLang') || 'vi');
         });
     </script>
 </body>

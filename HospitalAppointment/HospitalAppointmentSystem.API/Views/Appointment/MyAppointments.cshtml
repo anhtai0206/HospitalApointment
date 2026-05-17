@@ -1,6 +1,5 @@
 @model List<AppointmentDetailDTO>
 @{
-    string StatusLabel(string status) => status switch { "Pending" => "Chờ xác nhận", "Confirmed" => "Đã xác nhận", "Cancelled" => "Đã hủy", "Completed" => "Đã khám", _ => status };
     ViewData["Title"] = "Lịch khám của tôi";
 }
 
@@ -18,28 +17,32 @@
                 <th>Giờ khám</th>
                 <th>Lý do</th>
                 <th>Trạng thái</th>
-                <th>Thao tác</th>
+                <th>Lý do hủy</th>
             </tr>
         </thead>
         <tbody>
-            @foreach (var a in Model)
+            @if (Model.Any())
+            {
+                foreach (var a in Model)
+                {
+                    <tr>
+                        <td>@a.AppointmentId</td>
+                        <td>@a.DoctorName</td>
+                        <td>@a.SpecialtyName</td>
+                        <td>@a.MedicalServiceName</td>
+                        <td>@a.ClinicRoomName</td>
+                        <td>@a.WorkDate.ToString("dd/MM/yyyy")</td>
+                        <td>@a.StartTime.ToString(@"hh\:mm") - @a.EndTime.ToString(@"hh\:mm")</td>
+                        <td>@(string.IsNullOrWhiteSpace(a.Reason) ? "Không ghi" : a.Reason)</td>
+                        <td><span class="status-pill @a.Status.ToLower()">@a.Status</span></td>
+                        <td>@(a.Status == "Cancelled" ? (string.IsNullOrWhiteSpace(a.CancelReason) ? "Không ghi" : a.CancelReason) : "--")</td>
+                    </tr>
+                }
+            }
+            else
             {
                 <tr>
-                    <td>@a.AppointmentId</td>
-                    <td>@a.DoctorName</td>
-                    <td>@a.SpecialtyName</td>
-                    <td>@a.MedicalServiceName</td>
-                    <td>@a.ClinicRoomName</td>
-                    <td>@a.WorkDate.ToString("dd/MM/yyyy")</td>
-                    <td>@a.StartTime.ToString(@"hh\:mm") - @a.EndTime.ToString(@"hh\:mm")</td>
-                    <td>@(string.IsNullOrWhiteSpace(a.Reason) ? "Không ghi" : a.Reason)</td>
-                    <td><span class="status-pill @a.Status.ToLower()">@StatusLabel(a.Status)</span></td>
-                    <td class="actions">
-                        @if (a.Status != "Cancelled" && a.Status != "Completed")
-                        {
-                            <form asp-action="CancelMine" method="post"><input type="hidden" name="id" value="@a.AppointmentId" /><button>Hủy lịch</button></form>
-                        }
-                    </td>
+                    <td colspan="10" class="empty-table-text">Bạn chưa có lịch khám nào.</td>
                 </tr>
             }
         </tbody>

@@ -26,7 +26,7 @@ public class AppointmentService : IAppointmentService
         if (dto.WorkDate.Date < DateTime.Today) return ApiResponse.Fail("Không thể đặt lịch trong quá khứ");
         if (string.IsNullOrWhiteSpace(dto.ShiftCode)) return ApiResponse.Fail("Vui lòng chọn ca khám");
 
-        var validShifts = new[] { "CA1", "CA2", "CA3", "CA4" };
+        var validShifts = new[] { "MORNING", "AFTERNOON" };
         if (!validShifts.Contains(dto.ShiftCode.Trim().ToUpper()))
             return ApiResponse.Fail("Ca khám không hợp lệ");
 
@@ -38,7 +38,7 @@ public class AppointmentService : IAppointmentService
         return await _appointmentRepository.BookAppointmentAsync(dto);
     }
 
-    public Task<ApiResponse> CancelAsync(int appointmentId) => _appointmentRepository.CancelAsync(appointmentId);
+    public Task<ApiResponse> CancelAsync(int appointmentId, string? cancelReason = null) => _appointmentRepository.CancelAsync(appointmentId, cancelReason);
     public Task<ApiResponse> ConfirmAsync(int appointmentId) => _appointmentRepository.ConfirmAsync(appointmentId);
     public Task<ApiResponse> CompleteAsync(int appointmentId) => _appointmentRepository.CompleteAsync(appointmentId);
 }
