@@ -1117,6 +1117,7 @@ body, input, select, textarea, button {
 }
 .quick-tab.blue { background: linear-gradient(135deg, #38bdf8, #0284c7); color: #fff; }
 .quick-tab.active { background: linear-gradient(135deg, #fcd34d, #f59e0b); }
+.quick-tab.blue.active { background: linear-gradient(135deg, #38bdf8, #0284c7); color: #fff; }
 .quick-tab:hover { filter: brightness(.98); }
 .section-title {
     text-align: center;
@@ -2113,4 +2114,114 @@ body, input, select, textarea, button {
 }
 .footer-socials-modern svg {
     fill: currentColor !important;
+}
+
+
+/* ===== Final requested layout/avatar fixes ===== */
+html,
+body {
+    min-height: 100%;
+}
+body {
+    overflow-x: hidden;
+}
+.clinic-page {
+    min-height: 100vh !important;
+    align-items: stretch !important;
+}
+.content {
+    display: flex !important;
+    flex-direction: column !important;
+    min-height: 100vh !important;
+    padding-bottom: 0 !important;
+}
+.content > .site-footer {
+    margin-top: auto !important;
+    margin-left: -26px !important;
+    margin-right: -26px !important;
+    margin-bottom: 0 !important;
+    flex-shrink: 0 !important;
+}
+.site-footer {
+    min-height: 38vh;
+}
+/* Keep the original hotline floating button style */
+.float-btn.hotline,
+.float-btn.hotline:visited,
+.float-btn.hotline:hover,
+.float-btn.hotline:focus {
+    background: linear-gradient(135deg, #005ba8, #2563eb) !important;
+    color: #fff !important;
+    text-decoration: none !important;
+}
+/* Make the default male doctor avatar render sharper instead of stretching badly */
+.doctor-image-panel .doctor-photo[src*="default-doctor"],
+.doctor-image-panel .doctor-photo[src*="default-male-doctor"] {
+    object-fit: contain !important;
+    image-rendering: auto;
+}
+
+
+/* ===== Final footer gap removal fix =====
+   Put page content in a flexible body area and keep the footer as the last element.
+   This removes the empty rectangle under the footer on short pages. */
+html, body {
+    min-height: 100vh !important;
+    margin: 0 !important;
+}
+.clinic-page {
+    min-height: 100vh !important;
+}
+.content {
+    min-height: 100vh !important;
+    display: flex !important;
+    flex-direction: column !important;
+    padding-bottom: 0 !important;
+}
+.page-body {
+    width: 100%;
+    flex: 1 0 auto;
+}
+.content > .site-footer {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    flex-shrink: 0 !important;
+}
+.site-footer {
+    min-height: auto !important;
+}
+
+/* ===== Requested: restore footer contact icons and hotline color edit point ===== */
+.footer-socials-modern a,
+.footer-socials-modern a:hover,
+.footer-socials-modern a:visited,
+.footer-socials-modern a:focus {
+    background: #ffc94a !important;
+    border: none !important;
+    border-radius: 999px !important;
+    color: #0f172a !important;
+    box-shadow: none !important;
+}
+.footer-socials-modern .social-facebook,
+.footer-socials-modern .social-facebook:visited,
+.footer-socials-modern .social-youtube,
+.footer-socials-modern .social-youtube:visited {
+    color: #0f172a !important;
+}
+.footer-socials-modern .social-zalo,
+.footer-socials-modern .social-zalo:visited {
+    color: #005ba8 !important;
+    font-weight: 1000 !important;
+}
+.footer-socials-modern svg {
+    fill: currentColor !important;
+}
+
+/* ĐỔI MÀU CHỮ HOTLINE Ở ĐÂY: sửa giá trị color và -webkit-text-fill-color bên dưới */
+.site-footer .footer-hotline,
+.site-footer .footer-hotline:visited,
+.site-footer .footer-hotline:hover,
+.site-footer .footer-hotline:focus {
+    color: #0f172a !important;
+    -webkit-text-fill-color: #0f172a !important;
 }

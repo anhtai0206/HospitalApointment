@@ -495,10 +495,21 @@ else
     document.addEventListener('DOMContentLoaded', function () {
         const booking = document.getElementById('bookingSection');
         const doctors = document.getElementById('doctorSection');
-        if (booking && !booking.hasAttribute('hidden')) booking.style.display = 'none';
-        if (doctors) doctors.style.display = 'block';
-        setActiveHomeTab('doctors');
-        liveFilterDoctors();
+        const tab = new URLSearchParams(window.location.search).get('tab');
+        const shouldShowBooking = tab === 'booking';
+
+        if (shouldShowBooking && booking && !booking.hasAttribute('hidden')) {
+            booking.style.display = 'block';
+            if (doctors) doctors.style.display = 'none';
+            setActiveHomeTab('booking');
+            setTimeout(() => booking.scrollIntoView({ behavior: 'smooth', block: 'start' }), 150);
+        } else {
+            if (booking && !booking.hasAttribute('hidden')) booking.style.display = 'none';
+            if (doctors) doctors.style.display = 'block';
+            setActiveHomeTab('doctors');
+            liveFilterDoctors();
+            if (tab === 'doctors') setTimeout(() => doctors?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 150);
+        }
 
         if (!specialtySelect) return;
         setTodayLocal();

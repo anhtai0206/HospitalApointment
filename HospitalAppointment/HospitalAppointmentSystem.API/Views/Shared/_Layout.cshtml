@@ -64,7 +64,9 @@
                     <button type="button" onclick="setLanguage('en')"><span>EN</span> English</button>
                 </div>
             </div>
-            @RenderBody()
+            <div class="page-body">
+                @RenderBody()
+            </div>
 
             <footer class="site-footer" id="siteFooter">
                 <div class="footer-brand">
@@ -82,10 +84,10 @@
 
                 <div class="footer-column">
                     <h4>Về chúng tôi</h4>
-                    <a href="#doctorSection">Đội ngũ bác sĩ</a>
+                    <a href="/?tab=doctors">Đội ngũ bác sĩ</a>
                     @if (User.Identity?.IsAuthenticated == true)
                     {
-                        <a href="#bookingSection">Đặt lịch khám</a>
+                        <a href="/?tab=booking">Đặt lịch khám</a>
                         <a href="/Account/PatientInfo">Hồ sơ bệnh nhân</a>
                         <a href="/Appointment/MyAppointments">Lịch khám</a>
                     }

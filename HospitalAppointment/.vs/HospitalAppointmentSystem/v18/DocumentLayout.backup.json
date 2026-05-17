@@ -1,12 +1,37 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "C:\\Users\\Administrator\\Downloads\\HospitalApointment\\HospitalAppointment\\",
-  "Documents": [],
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{11111111-1111-1111-1111-111111111111}|HospitalAppointmentSystem.API\\HospitalAppointmentSystem.API.csproj|c:\\users\\administrator\\downloads\\hospitalapointment\\hospitalappointment\\hospitalappointmentsystem.api\\wwwroot\\css\\site.css||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{11111111-1111-1111-1111-111111111111}|HospitalAppointmentSystem.API\\HospitalAppointmentSystem.API.csproj|solutionrelative:hospitalappointmentsystem.api\\wwwroot\\css\\site.css||{8B382828-6202-11D1-8870-0000F87579D2}"
+    }
+  ],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
       "VerticalTabListWidth": 256,
-      "DocumentGroups": []
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "site.css",
+              "DocumentMoniker": "C:\\Users\\Administrator\\Downloads\\HospitalApointment\\HospitalAppointment\\HospitalAppointmentSystem.API\\wwwroot\\css\\site.css",
+              "RelativeDocumentMoniker": "HospitalAppointmentSystem.API\\wwwroot\\css\\site.css",
+              "ToolTip": "C:\\Users\\Administrator\\Downloads\\HospitalApointment\\HospitalAppointment\\HospitalAppointmentSystem.API\\wwwroot\\css\\site.css",
+              "RelativeToolTip": "HospitalAppointmentSystem.API\\wwwroot\\css\\site.css",
+              "ViewState": "AgIAABIIAAAAAAAAAAAQwC0IAAAhAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003000|",
+              "WhenOpened": "2026-05-17T13:48:18.429Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
     }
   ]
 }

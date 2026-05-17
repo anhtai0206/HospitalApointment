@@ -1,0 +1,6 @@
+wwwroot\css\site.css
+wwwroot\images\default-doctor.png
+wwwroot\images\default-doctor.svg
+wwwroot\images\default-female-doctor.png
+wwwroot\images\default-male-doctor.png
+wwwroot\images\default-male-doctor.svg
