@@ -1,6 +1,14 @@
 @model List<AppointmentDetailDTO>
 @{
     ViewData["Title"] = "Lịch khám của tôi";
+    string StatusLabel(string status) => status switch
+    {
+        "Pending" => "Chờ xác nhận",
+        "Confirmed" => "Đã xác nhận",
+        "Completed" => "Đã khám",
+        "Cancelled" => "Đã hủy",
+        _ => status
+    };
 }
 
 <section class="schedule-list full">
@@ -17,7 +25,7 @@
                 <th>Giờ khám</th>
                 <th>Lý do</th>
                 <th>Trạng thái</th>
-                <th>Lý do hủy</th>
+                <th>Thao tác / Lý do hủy</th>
             </tr>
         </thead>
         <tbody>
@@ -34,8 +42,25 @@
                         <td>@a.WorkDate.ToString("dd/MM/yyyy")</td>
                         <td>@a.StartTime.ToString(@"hh\:mm") - @a.EndTime.ToString(@"hh\:mm")</td>
                         <td>@(string.IsNullOrWhiteSpace(a.Reason) ? "Không ghi" : a.Reason)</td>
-                        <td><span class="status-pill @a.Status.ToLower()">@a.Status</span></td>
-                        <td>@(a.Status == "Cancelled" ? (string.IsNullOrWhiteSpace(a.CancelReason) ? "Không ghi" : a.CancelReason) : "--")</td>
+                        <td><span class="status-pill @a.Status.ToLower()">@StatusLabel(a.Status)</span></td>
+                        <td class="actions">
+                            @if (a.Status == "Pending")
+                            {
+                                <form asp-action="CancelMine" method="post" onsubmit="return askCancelReason(this)">
+                                    <input type="hidden" name="id" value="@a.AppointmentId" />
+                                    <input type="hidden" name="cancelReason" />
+                                    <button class="danger-button">Hủy lịch</button>
+                                </form>
+                            }
+                            else if (a.Status == "Cancelled")
+                            {
+                                <span class="cancel-reason-text">@(string.IsNullOrWhiteSpace(a.CancelReason) ? "Không ghi" : a.CancelReason)</span>
+                            }
+                            else
+                            {
+                                <span class="muted-action">--</span>
+                            }
+                        </td>
                     </tr>
                 }
             }
@@ -48,3 +73,11 @@
         </tbody>
     </table>
 </section>
+<script>
+    function askCancelReason(form) {
+        const reason = prompt('Nhập lý do hủy lịch hẹn nếu có:');
+        if (reason === null) return false;
+        form.querySelector('input[name="cancelReason"]').value = reason || '';
+        return true;
+    }
+</script>

@@ -108,8 +108,7 @@ public class AppointmentRepository : IAppointmentRepository
         var appointment = await _db.Appointments.FirstOrDefaultAsync(a => a.AppointmentId == appointmentId);
         if (appointment == null) return ApiResponse.Fail("Không tìm thấy lịch hẹn");
         if (appointment.Status == "Cancelled") return ApiResponse.Fail("Lịch hẹn đã bị hủy trước đó");
-        if (appointment.Status == "Confirmed") return ApiResponse.Fail("Lịch hẹn đã được xác nhận nên không thể hủy");
-        if (appointment.Status == "Completed") return ApiResponse.Fail("Lịch hẹn đã khám xong nên không thể hủy");
+        if (appointment.Status != "Pending") return ApiResponse.Fail("Chỉ lịch đang chờ xác nhận mới được hủy");
 
         appointment.Status = "Cancelled";
         appointment.CancelReason = string.IsNullOrWhiteSpace(cancelReason) ? null : cancelReason.Trim();
@@ -129,6 +128,8 @@ public class AppointmentRepository : IAppointmentRepository
     {
         var appointment = await _db.Appointments.FirstOrDefaultAsync(a => a.AppointmentId == appointmentId);
         if (appointment == null) return ApiResponse.Fail("Không tìm thấy lịch hẹn");
+        if (appointment.Status != "Pending")
+            return ApiResponse.Fail("Chỉ lịch đang chờ xác nhận mới được xác nhận");
 
         appointment.Status = "Confirmed";
         _db.AppointmentLogs.Add(new AppointmentLog
@@ -147,7 +148,8 @@ public class AppointmentRepository : IAppointmentRepository
     {
         var appointment = await _db.Appointments.FirstOrDefaultAsync(a => a.AppointmentId == appointmentId);
         if (appointment == null) return ApiResponse.Fail("Không tìm thấy lịch hẹn");
-        if (appointment.Status == "Cancelled") return ApiResponse.Fail("Lịch hẹn đã hủy nên không thể cập nhật đã khám");
+        if (appointment.Status != "Confirmed")
+            return ApiResponse.Fail("Chỉ lịch đã xác nhận mới được cập nhật đã khám");
 
         appointment.Status = "Completed";
         _db.AppointmentLogs.Add(new AppointmentLog
